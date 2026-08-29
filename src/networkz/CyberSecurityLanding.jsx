@@ -143,6 +143,27 @@ export default function CyberSecurityLanding() {
   const [formData, setFormData] = useState({ name: '', phone: '', role: 'Student (Study)' });
   const [submitted, setSubmitted] = useState(false);
   const [showOfferModal, setShowOfferModal] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Close mobile drawer on desktop resize or escape key
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 1100) {
+        setMobileMenuOpen(false);
+      }
+    };
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   /* ── 15-SECOND RECURRING AUTO POPUP MODAL ── */
   useEffect(() => {
@@ -336,6 +357,7 @@ export default function CyberSecurityLanding() {
           <span className="nz-brand-tag">KOLLAM CAMPUS</span>
         </Link>
 
+        {/* Desktop Links */}
         <ul className="nz-nav-menu">
           <li><a href="#overview" className="nz-nav-link">OVERVIEW</a></li>
           <li><a href="#syllabus" className="nz-nav-link">SYLLABUS</a></li>
@@ -344,19 +366,102 @@ export default function CyberSecurityLanding() {
           <li><a href="#contact" className="nz-nav-link">KOLLAM CAMPUS</a></li>
         </ul>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+        {/* Desktop Actions & Mobile Hamburger Toggle */}
+        <div className="nz-nav-actions">
           <button className="nz-nav-cta" onClick={scrollToBooking} style={{ cursor: 'pointer', border: 'none' }}>
             CLAIM 20% OFFER ↗
           </button>
           <button
-            className="nz-btn-secondary"
+            className="nz-btn-secondary nz-nav-home-btn"
             onClick={() => navigate('/')}
             style={{ padding: '0.65rem 1.1rem', fontSize: '0.78rem', background: '#222222', color: '#ffffff', border: '1px solid #333333' }}
           >
             ← HOME
           </button>
+          <button
+            type="button"
+            className={`nz-hamburger-btn ${mobileMenuOpen ? 'is-active' : ''}`}
+            onClick={() => setMobileMenuOpen((prev) => !prev)}
+            aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-expanded={mobileMenuOpen}
+          >
+            <div className="nz-hamburger-icon">
+              <span />
+              <span />
+              <span />
+            </div>
+          </button>
         </div>
       </nav>
+
+      {/* Mobile Drawer Backdrop */}
+      <div
+        className={`nz-mobile-nav-backdrop ${mobileMenuOpen ? 'is-open' : ''}`}
+        onClick={() => setMobileMenuOpen(false)}
+        aria-hidden="true"
+      />
+
+      {/* Mobile Drawer Dropdown List */}
+      <div className={`nz-mobile-nav-drawer ${mobileMenuOpen ? 'is-open' : ''}`}>
+        <ul className="nz-mobile-nav-list">
+          <li>
+            <a href="#overview" className="nz-mobile-nav-item" onClick={() => setMobileMenuOpen(false)}>
+              <span>Course Overview</span>
+              <span className="nz-mobile-nav-arrow">→</span>
+            </a>
+          </li>
+          <li>
+            <a href="#syllabus" className="nz-mobile-nav-item" onClick={() => setMobileMenuOpen(false)}>
+              <span>Hands-on Syllabus</span>
+              <span className="nz-mobile-nav-arrow">→</span>
+            </a>
+          </li>
+          <li>
+            <a href="#tools" className="nz-mobile-nav-item" onClick={() => setMobileMenuOpen(false)}>
+              <span>Security Stack & Labs</span>
+              <span className="nz-mobile-nav-arrow">→</span>
+            </a>
+          </li>
+          <li>
+            <a href="#careers" className="nz-mobile-nav-item" onClick={() => setMobileMenuOpen(false)}>
+              <span>Job Roles & Salaries</span>
+              <span className="nz-mobile-nav-arrow">→</span>
+            </a>
+          </li>
+          <li>
+            <a href="#contact" className="nz-mobile-nav-item" onClick={() => setMobileMenuOpen(false)}>
+              <span>Kollam Campus Admissions</span>
+              <span className="nz-mobile-nav-arrow">→</span>
+            </a>
+          </li>
+        </ul>
+
+        <div className="nz-mobile-nav-actions">
+          <button
+            className="nz-mobile-cta-btn"
+            onClick={() => {
+              setMobileMenuOpen(false);
+              scrollToBooking();
+            }}
+          >
+            CLAIM 20% DISCOUNT OFFER ↗
+          </button>
+          <button
+            className="nz-mobile-secondary-btn"
+            onClick={() => {
+              setMobileMenuOpen(false);
+              navigate('/');
+            }}
+          >
+            ← RETURN TO HOMEPAGE
+          </button>
+        </div>
+
+        <div className="nz-mobile-nav-footer">
+          <span>Cyber Security Lab • Kollam</span>
+          <a href={getWhatsAppUrl()} target="_blank" rel="noopener noreferrer">WhatsApp Desk ↗</a>
+        </div>
+      </div>
 
       {/* ─────────────────────────────────────────────────────────
          TOP GLOWING RIBBON

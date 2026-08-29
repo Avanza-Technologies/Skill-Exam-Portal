@@ -124,6 +124,7 @@ export default function NetworkzHome() {
   const [selectedEnrollmentCourse, setSelectedEnrollmentCourse] = useState(null);
   const [enrollmentSubmitted, setEnrollmentSubmitted] = useState(false);
   const [contactFormSubmitted, setContactFormSubmitted] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Flatten courses for searching/filtering
   const allCourses = Object.entries(COURSE_DETAILS).flatMap(([catId, cat]) =>
@@ -160,6 +161,26 @@ export default function NetworkzHome() {
     }
   }, []);
 
+  // Close mobile drawer on desktop resize or escape key
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 1100) {
+        setMobileMenuOpen(false);
+      }
+    };
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
   return (
     <div className="nz-luxury-root">
 
@@ -171,6 +192,7 @@ export default function NetworkzHome() {
           <span className="nz-brand-tag">KOLLAM CAMPUS</span>
         </a>
 
+        {/* Desktop Navigation Links */}
         <ul className="nz-nav-menu">
           <li><a href="#features" className="nz-nav-link">PILLARS</a></li>
           <li><a href="#catalog" className="nz-nav-link">PROGRAMS</a></li>
@@ -181,10 +203,101 @@ export default function NetworkzHome() {
           <li><a href="#faq" className="nz-nav-link">FAQ</a></li>
         </ul>
 
-        <a href="/exam" className="nz-nav-cta">
-          SKILL EXAM PORTAL →
-        </a>
+        {/* Desktop CTA & Mobile Hamburger Toggle */}
+        <div className="nz-nav-actions">
+          <a href="/exam" className="nz-nav-cta">
+            SKILL EXAM PORTAL →
+          </a>
+          <button
+            type="button"
+            className={`nz-hamburger-btn ${mobileMenuOpen ? 'is-active' : ''}`}
+            onClick={() => setMobileMenuOpen((prev) => !prev)}
+            aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-expanded={mobileMenuOpen}
+          >
+            <div className="nz-hamburger-icon">
+              <span />
+              <span />
+              <span />
+            </div>
+          </button>
+        </div>
       </nav>
+
+      {/* Mobile Drawer Backdrop */}
+      <div
+        className={`nz-mobile-nav-backdrop ${mobileMenuOpen ? 'is-open' : ''}`}
+        onClick={() => setMobileMenuOpen(false)}
+        aria-hidden="true"
+      />
+
+      {/* Mobile Drawer Dropdown List */}
+      <div className={`nz-mobile-nav-drawer ${mobileMenuOpen ? 'is-open' : ''}`}>
+        <ul className="nz-mobile-nav-list">
+          <li>
+            <a href="#features" className="nz-mobile-nav-item" onClick={() => setMobileMenuOpen(false)}>
+              <span>Pillars of Excellence</span>
+              <span className="nz-mobile-nav-arrow">→</span>
+            </a>
+          </li>
+          <li>
+            <a href="#catalog" className="nz-mobile-nav-item" onClick={() => setMobileMenuOpen(false)}>
+              <span>Course Catalog</span>
+              <span className="nz-mobile-nav-arrow">→</span>
+            </a>
+          </li>
+          <li>
+            <a href="/cybersecurity" className="nz-mobile-nav-item" onClick={() => setMobileMenuOpen(false)}>
+              <span>Cyber Security & Ethical Hacking</span>
+              <span className="nz-mobile-nav-item-badge">HOT</span>
+            </a>
+          </li>
+          <li>
+            <a href="/digital-marketing" className="nz-mobile-nav-item" onClick={() => setMobileMenuOpen(false)}>
+              <span>Digital Marketing & AI</span>
+              <span className="nz-mobile-nav-item-badge">HOT</span>
+            </a>
+          </li>
+          <li>
+            <a href="#why-us" className="nz-mobile-nav-item" onClick={() => setMobileMenuOpen(false)}>
+              <span>Why Choose Us</span>
+              <span className="nz-mobile-nav-arrow">→</span>
+            </a>
+          </li>
+          <li>
+            <a href="#success" className="nz-mobile-nav-item" onClick={() => setMobileMenuOpen(false)}>
+              <span>Placement Success</span>
+              <span className="nz-mobile-nav-arrow">→</span>
+            </a>
+          </li>
+          <li>
+            <a href="#faq" className="nz-mobile-nav-item" onClick={() => setMobileMenuOpen(false)}>
+              <span>FAQ & Answers</span>
+              <span className="nz-mobile-nav-arrow">→</span>
+            </a>
+          </li>
+          <li>
+            <a href="#contact" className="nz-mobile-nav-item" onClick={() => setMobileMenuOpen(false)}>
+              <span>Contact Kollam Campus</span>
+              <span className="nz-mobile-nav-arrow">→</span>
+            </a>
+          </li>
+        </ul>
+
+        <div className="nz-mobile-nav-actions">
+          <a href="/exam" className="nz-mobile-cta-btn" onClick={() => setMobileMenuOpen(false)}>
+            SKILL EXAM PORTAL →
+          </a>
+          <a href="tel:08089030405" className="nz-mobile-secondary-btn">
+            📞 CALL CAMPUS: +91 80890 30405
+          </a>
+        </div>
+
+        <div className="nz-mobile-nav-footer">
+          <span>Kollam Campus • Chinnakada</span>
+          <a href="https://wa.me/918089030405" target="_blank" rel="noopener noreferrer">WhatsApp Support ↗</a>
+        </div>
+      </div>
 
       {/* ─── SECTION 2: HERO FULL VIEWPORT EXPERIENCE ───────────────── */}
       <section className="nz-hero-section">
