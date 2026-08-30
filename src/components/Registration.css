@@ -198,6 +198,44 @@
   line-height: 1.5;
 }
 
+.reg-side-socials {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.85rem;
+}
+
+.reg-social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.reg-social-link svg {
+  flex-shrink: 0;
+}
+
+.reg-social-link--ig:hover {
+  background: linear-gradient(45deg, #f09433, #dc2743, #bc1888);
+  border-color: transparent;
+  color: #ffffff;
+}
+
+.reg-social-link--fb:hover {
+  background: #1877F2;
+  border-color: #1877F2;
+  color: #ffffff;
+}
+
 /* ── RIGHT FORM AREA ─────────────────────────────────── */
 .reg-main {
   padding: 3rem 4rem;

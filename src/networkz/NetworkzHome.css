@@ -1641,7 +1641,115 @@
   color: #f36f21;
 }
 
+/* ── FOOTER SOCIAL MEDIA CONNECT ── */
+.nz-footer-social-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-top: 1.25rem;
+  padding-top: 1.15rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
 
+.nz-social-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #1E5D42;
+  background: rgba(30, 93, 66, 0.15);
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  align-self: flex-start;
+}
+
+.nz-social-btns {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.nz-social-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 1.05rem;
+  border-radius: 100px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.nz-social-btn svg {
+  flex-shrink: 0;
+  transition: transform 0.25s ease;
+}
+
+.nz-social-btn:hover {
+  transform: translateY(-2px);
+  color: #ffffff;
+}
+
+.nz-social-btn:hover svg {
+  transform: scale(1.15);
+}
+
+.nz-social-btn--ig:hover {
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  border-color: transparent;
+  box-shadow: 0 6px 20px rgba(225, 48, 108, 0.45);
+}
+
+.nz-social-btn--fb:hover {
+  background: #1877F2;
+  border-color: #1877F2;
+  box-shadow: 0 6px 20px rgba(24, 119, 242, 0.45);
+}
+
+/* Mobile Drawer Social Links */
+.nz-mobile-nav-socials {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nz-mobile-social-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: all 0.2s ease;
+}
+
+.nz-mobile-social-ig:hover,
+.nz-mobile-social-ig:active {
+  background: linear-gradient(45deg, #f09433, #dc2743, #bc1888);
+  border-color: transparent;
+}
+
+.nz-mobile-social-fb:hover,
+.nz-mobile-social-fb:active {
+  background: #1877F2;
+  border-color: #1877F2;
+}
 
 .nz-footer-bottom {
   padding-top: 3rem;
@@ -1649,6 +1757,30 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
   font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.5);
+}
+
+.nz-footer-bottom-socials {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.nz-footer-social-link {
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.nz-footer-social-link:hover {
+  color: #f36f21;
+}
+
+.nz-footer-dot {
+  color: rgba(255, 255, 255, 0.3);
 }
