@@ -578,14 +578,20 @@ export default function NetworkzHome() {
 
           <div className="nz-category-grid">
             {CATEGORIES_DATA.map((cat) => (
-              <a key={cat.id} href={cat.link} className="nz-category-card">
-                <img src={cat.img} alt={cat.title} className="nz-category-bg" />
+              <a key={cat.id} href={cat.link} className="nz-category-card" aria-label={cat.title}>
+                <img src={cat.img} alt={cat.title} className="nz-category-bg" loading="lazy" />
                 <div className="nz-category-overlay" />
                 <div className="nz-category-content">
-                  <span style={{ fontSize: '0.75rem', fontWeight: '800', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--color-accent)' }}>
+                  <span className="nz-category-badge">
                     {cat.count}
                   </span>
-                  <h3 style={{ fontSize: '1.6rem', fontWeight: '800', marginTop: '0.4rem' }}>{cat.title}</h3>
+                  <h3 className="nz-category-title">{cat.title}</h3>
+                  <div className="nz-category-cta">
+                    <span>Explore Track</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                  </div>
                 </div>
               </a>
             ))}

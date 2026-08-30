@@ -1243,13 +1243,28 @@
   height: 380px;
   border-radius: var(--radius-card);
   overflow: hidden;
-  box-shadow: var(--shadow-luxury);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 3rem;
-  color: var(--color-secondary);
+  padding: 2.5rem;
+  color: #ffffff;
   text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: transform 0.4s var(--ease-editorial), box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+@media (max-width: 640px) {
+  .nz-category-card {
+    height: 320px;
+    padding: 1.75rem;
+  }
+}
+
+.nz-category-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.35);
+  border-color: rgba(52, 211, 153, 0.4);
 }
 
 .nz-category-bg {
@@ -1258,22 +1273,83 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.8s var(--ease-editorial);
+  transition: transform 0.8s var(--ease-editorial), filter 0.5s ease;
+  filter: brightness(0.85);
 }
 
 .nz-category-card:hover .nz-category-bg {
   transform: scale(1.08);
+  filter: brightness(0.95);
 }
 
 .nz-category-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.85) 100%);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(9, 13, 22, 0.65) 45%, rgba(9, 13, 22, 0.95) 100%);
+  pointer-events: none;
 }
 
 .nz-category-content {
   position: relative;
   z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.nz-category-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  padding: 5px 12px;
+  border-radius: 100px;
+  backdrop-filter: blur(8px);
+  margin-bottom: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.nz-category-title {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #ffffff !important;
+  line-height: 1.2;
+  margin: 0 0 0.85rem;
+  letter-spacing: -0.01em;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+  transition: color 0.25s ease;
+}
+
+@media (max-width: 640px) {
+  .nz-category-title {
+    font-size: 1.35rem;
+  }
+}
+
+.nz-category-card:hover .nz-category-title {
+  color: #34d399 !important;
+}
+
+.nz-category-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+  transition: all 0.25s ease;
+}
+
+.nz-category-card:hover .nz-category-cta {
+  color: #ffffff;
+  transform: translateX(4px);
 }
 
 /* ─── SECTION 10: LEARNING PROCESS ─────────────────────────────── */
