@@ -40,6 +40,45 @@
   pointer-events: none;
 }
 
+.reg-side-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap;
+}
+
+.reg-side-home-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 100px;
+  color: #cbd5e1;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reg-side-home-btn:hover {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #34d399;
+  transform: translateX(-2px);
+}
+
+.reg-side-home-btn svg {
+  transition: transform 0.2s ease;
+}
+
+.reg-side-home-btn:hover svg {
+  transform: translateX(-2px);
+}
+
 .reg-logo-badge {
   display: inline-flex;
   align-items: center;
@@ -54,7 +93,7 @@
   letter-spacing: 0.15em;
   text-transform: uppercase;
   width: fit-content;
-  margin-bottom: 2.5rem;
+  margin-bottom: 0;
 }
 
 .reg-side-title {
@@ -178,6 +217,59 @@
 .reg-form-box {
   width: 100%;
   max-width: 540px;
+}
+
+.reg-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  gap: 12px;
+}
+
+.reg-home-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 14px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 100px;
+  color: #334155;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 2px 6px -2px rgba(15, 23, 42, 0.06);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reg-home-pill-btn:hover {
+  background: #0f172a;
+  border-color: #0f172a;
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.15);
+}
+
+.reg-home-pill-btn svg {
+  color: #059669;
+  transition: color 0.2s ease;
+}
+
+.reg-home-pill-btn:hover svg {
+  color: #34d399;
+}
+
+.reg-portal-pill {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #059669;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  padding: 4px 10px;
+  border-radius: 100px;
 }
 
 .reg-form-heading {

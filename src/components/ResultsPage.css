@@ -201,6 +201,12 @@
   color: #0f172a;
 }
 
+.done-btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
 .done-btn {
   width: 100%;
   background: linear-gradient(135deg, #059669 0%, #10b981 100%);
@@ -217,11 +223,50 @@
   transition: all 0.25s ease;
   box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.35);
   text-decoration: none;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .done-btn:hover {
   background: linear-gradient(135deg, #047857 0%, #059669 100%);
   transform: translateY(-2px);
   box-shadow: 0 14px 30px -5px rgba(16, 185, 129, 0.45);
+}
+
+.done-home-btn {
+  width: 100%;
+  background: #f8fafc;
+  color: #334155;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0.95rem;
+  border-radius: 12px;
+  border: 1.5px solid #e2e8f0;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.done-home-btn:hover {
+  background: #0f172a;
+  border-color: #0f172a;
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px -3px rgba(15, 23, 42, 0.12);
+}
+
+.done-home-btn svg {
+  color: #059669;
+  transition: color 0.2s ease;
+}
+
+.done-home-btn:hover svg {
+  color: #34d399;
 }
