@@ -205,6 +205,21 @@ export default function NetworkzHome() {
 
         {/* Desktop CTA & Mobile Hamburger Toggle */}
         <div className="nz-nav-actions">
+          <a
+            href="https://script.google.com/a/macros/nskollam.com/s/AKfycbxGEQdDZ0eAyhgPTKpZM1denEs7A5Ui15Ak1gEMWkYYvDsBpR7ViaN2Rzm0LWCjJ_k_/exec"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="nz-nav-login-btn"
+            title="Employee Timesheet Login"
+            aria-label="Employee Timesheet Login"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+              <polyline points="10 17 15 12 10 7" />
+              <line x1="15" y1="12" x2="3" y2="12" />
+            </svg>
+            <span>EMPLOYEE LOGIN</span>
+          </a>
           <a href="/exam" className="nz-nav-cta">
             SKILL EXAM PORTAL →
           </a>
@@ -277,6 +292,18 @@ export default function NetworkzHome() {
             </a>
           </li>
           <li>
+            <a
+              href="https://script.google.com/a/macros/nskollam.com/s/AKfycbxGEQdDZ0eAyhgPTKpZM1denEs7A5Ui15Ak1gEMWkYYvDsBpR7ViaN2Rzm0LWCjJ_k_/exec"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="nz-mobile-nav-item"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <span>Employee Timesheet Login</span>
+              <span className="nz-mobile-nav-item-badge" style={{ background: '#2563eb' }}>STAFF ↗</span>
+            </a>
+          </li>
+          <li>
             <a href="#contact" className="nz-mobile-nav-item" onClick={() => setMobileMenuOpen(false)}>
               <span>Contact Kollam Campus</span>
               <span className="nz-mobile-nav-arrow">→</span>
@@ -285,6 +312,20 @@ export default function NetworkzHome() {
         </ul>
 
         <div className="nz-mobile-nav-actions">
+          <a
+            href="https://script.google.com/a/macros/nskollam.com/s/AKfycbxGEQdDZ0eAyhgPTKpZM1denEs7A5Ui15Ak1gEMWkYYvDsBpR7ViaN2Rzm0LWCjJ_k_/exec"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="nz-mobile-login-btn"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+              <polyline points="10 17 15 12 10 7" />
+              <line x1="15" y1="12" x2="3" y2="12" />
+            </svg>
+            EMPLOYEE LOGIN (TIMESHEET) ↗
+          </a>
           <a href="/exam" className="nz-mobile-cta-btn" onClick={() => setMobileMenuOpen(false)}>
             SKILL EXAM PORTAL →
           </a>
@@ -846,8 +887,18 @@ export default function NetworkzHome() {
             </div>
 
             <div>
-              <div className="nz-footer-title">STUDENT PORTAL</div>
+              <div className="nz-footer-title">STUDENT & EMPLOYEE PORTAL</div>
               <ul className="nz-footer-links">
+                <li>
+                  <a
+                    href="https://script.google.com/a/macros/nskollam.com/s/AKfycbxGEQdDZ0eAyhgPTKpZM1denEs7A5Ui15Ak1gEMWkYYvDsBpR7ViaN2Rzm0LWCjJ_k_/exec"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="nz-footer-employee-link"
+                  >
+                    Employee Timesheet Login ↗
+                  </a>
+                </li>
                 <li><a href="/exam">Skill Exam Portal</a></li>
                 <li><a href="#faq">Frequently Asked Questions</a></li>
                 <li><a href="#success">Placement Records</a></li>
