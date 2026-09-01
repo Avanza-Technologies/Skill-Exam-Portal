@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -12,6 +12,29 @@ import {
   systemApi,
 } from '../../services/api';
 import './StaffDashboard.css';
+
+// ── Time & Duration Calculation Helpers ───────────────────────────
+function formatMinutesToHours(minutes) {
+  if (minutes == null || isNaN(minutes) || minutes <= 0) return '0 min';
+  const hrs = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  if (hrs === 0) return `${mins}m`;
+  if (mins === 0) return `${hrs} hrs`;
+  return `${hrs}h ${mins}m`;
+}
+
+function calculateLiveDuration(inTimeStr, now) {
+  if (!inTimeStr) return '0m';
+  const [inH, inM, inS] = inTimeStr.split(':').map(Number);
+  const inSeconds = (inH || 0) * 3600 + (inM || 0) * 60 + (inS || 0);
+  const nowSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+  const diffSec = Math.max(0, nowSeconds - inSeconds);
+  const hrs = Math.floor(diffSec / 3600);
+  const mins = Math.floor((diffSec % 3600) / 60);
+  const secs = diffSec % 60;
+  if (hrs === 0) return `${mins}m ${secs}s`;
+  return `${hrs}h ${mins}m ${secs}s`;
+}
 
 export default function StaffDashboard() {
   const { user, logout, isSuperAdmin, isHR, isManager } = useAuth();
@@ -27,14 +50,30 @@ export default function StaffDashboard() {
   const [serverStatus, setServerStatus] = useState({ online: true, checked: false });
   const [toastMessage, setToastMessage] = useState(null);
 
-  // ── Attendance State ──────────────────────────────────────────
-  const [punchStatus, setPunchStatus] = useState(() => {
-    try {
-      const saved = localStorage.getItem(`ns_punch_${user?.userId}`);
-      return saved ? JSON.parse(saved) : { isPunchedIn: false, checkInTime: null, checkOutTime: null, lastAction: null };
-    } catch {
-      return { isPunchedIn: false, checkInTime: null, checkOutTime: null, lastAction: null };
-    }
+  // ── Employees Roster ──────────────────────────────────────────
+  const [employees, setEmployees] = useState([]);
+  const [loadingEmployees, setLoadingEmployees] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Selected Employee for timesheet (defaults to logged-in user's employee)
+  const [selectedEmpId, setSelectedEmpId] = useState(1);
+
+  // ── Attendance Timesheet State ─────────────────────────────────
+  const [attendanceMonth, setAttendanceMonth] = useState('2026-09');
+  const [dailyRecords, setDailyRecords] = useState([]);
+  const [loadingDailyRecords, setLoadingDailyRecords] = useState(false);
+
+  // Sessions detail modal for a specific day
+  const [selectedRecordForSessions, setSelectedRecordForSessions] = useState(null);
+
+  // ── Punch State ───────────────────────────────────────────────
+  const [punchStatus, setPunchStatus] = useState({
+    isPunchedIn: false,
+    checkInTime: null,
+    checkOutTime: null,
+    lastAction: null,
+    todayRecordedMinutes: 0,
+    todaySessions: [],
   });
   const [punchLoading, setPunchLoading] = useState(false);
   const [workMode, setWorkMode] = useState('OFFICE');
@@ -59,10 +98,7 @@ export default function StaffDashboard() {
   const [pendingOw, setPendingOw] = useState([]);
   const [loadingOw, setLoadingOw] = useState(false);
 
-  // ── Staff Directory State ─────────────────────────────────────
-  const [employees, setEmployees] = useState([]);
-  const [loadingEmployees, setLoadingEmployees] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  // ── Employee Onboarding Modal State ───────────────────────────
   const [showAddEmpModal, setShowAddEmpModal] = useState(false);
   const [newEmpCode, setNewEmpCode] = useState('');
   const [newEmpName, setNewEmpName] = useState('');
@@ -108,10 +144,12 @@ export default function StaffDashboard() {
   // Ping backend health
   useEffect(() => {
     let isMounted = true;
-    systemApi.checkHealth().then(res => {
+    systemApi.checkHealth().then((res) => {
       if (isMounted) setServerStatus({ online: res.online, checked: true });
     });
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // ── Data Fetchers ─────────────────────────────────────────────
@@ -119,13 +157,62 @@ export default function StaffDashboard() {
     setLoadingEmployees(true);
     try {
       const res = await employeeApi.getAllActive(user?.organizationId || 1);
-      if (res?.data) setEmployees(res.data);
+      if (res?.data && res.data.length > 0) {
+        setEmployees(res.data);
+        const matched = res.data.find(
+          (e) =>
+            (user?.userId && e.userId === user.userId) ||
+            (user?.email && e.email?.toLowerCase() === user.email.toLowerCase())
+        );
+        if (matched) {
+          setSelectedEmpId(matched.id);
+        } else if (!selectedEmpId) {
+          setSelectedEmpId(res.data[0].id);
+        }
+      }
     } catch (err) {
       console.warn('Could not load employees:', err.message);
     } finally {
       setLoadingEmployees(false);
     }
-  }, [user?.organizationId]);
+  }, [user, selectedEmpId]);
+
+  const fetchDailyAttendance = useCallback(
+    async (empId = selectedEmpId, month = attendanceMonth) => {
+      if (!empId) return;
+      setLoadingDailyRecords(true);
+      try {
+        const res = await attendanceApi.getDailyRecords(empId, month);
+        if (res?.data) {
+          setDailyRecords(res.data);
+
+          // Update today's punch state from database
+          const todayStr = new Date().toISOString().split('T')[0];
+          const todayRec = res.data.find((r) => r.workDate === todayStr);
+
+          if (todayRec) {
+            setPunchStatus({
+              isPunchedIn: Boolean(todayRec.isPunchedIn),
+              checkInTime: todayRec.inTime,
+              checkOutTime: todayRec.outTime,
+              lastAction: todayRec.isPunchedIn
+                ? `Active Session started at ${todayRec.inTime}`
+                : todayRec.outTime
+                ? `Last Punch Out recorded at ${todayRec.outTime} (${formatMinutesToHours(todayRec.recordedMinutes)} worked)`
+                : null,
+              todayRecordedMinutes: todayRec.recordedMinutes || 0,
+              todaySessions: todayRec.sessions || [],
+            });
+          }
+        }
+      } catch (err) {
+        console.warn('Could not fetch daily attendance:', err.message);
+      } finally {
+        setLoadingDailyRecords(false);
+      }
+    },
+    [selectedEmpId, attendanceMonth]
+  );
 
   const fetchPendingLeaves = useCallback(async () => {
     if (isSuperAdmin || isHR || isManager) {
@@ -155,17 +242,20 @@ export default function StaffDashboard() {
     }
   }, [isSuperAdmin, isHR, isManager, user?.organizationId]);
 
-  const fetchReports = useCallback(async (month = selectedMonth) => {
-    setLoadingReports(true);
-    try {
-      const res = await reportingApi.getMonthlySummaries(user?.organizationId || 1, month);
-      if (res?.data) setMonthlySummaries(res.data);
-    } catch (err) {
-      console.warn('Could not load reports:', err.message);
-    } finally {
-      setLoadingReports(false);
-    }
-  }, [user?.organizationId, selectedMonth]);
+  const fetchReports = useCallback(
+    async (month = selectedMonth) => {
+      setLoadingReports(true);
+      try {
+        const res = await reportingApi.getMonthlySummaries(user?.organizationId || 1, month);
+        if (res?.data) setMonthlySummaries(res.data);
+      } catch (err) {
+        console.warn('Could not load reports:', err.message);
+      } finally {
+        setLoadingReports(false);
+      }
+    },
+    [user?.organizationId, selectedMonth]
+  );
 
   const fetchHolidays = useCallback(async () => {
     setLoadingHolidays(true);
@@ -197,7 +287,7 @@ export default function StaffDashboard() {
     }
   }, [isSuperAdmin, isHR, user?.organizationId]);
 
-  // Load initial data on mount & tab changes
+  // Initial load
   useEffect(() => {
     fetchEmployees();
     fetchPendingLeaves();
@@ -205,13 +295,51 @@ export default function StaffDashboard() {
     fetchHolidays();
   }, [fetchEmployees, fetchPendingLeaves, fetchPendingOw, fetchHolidays]);
 
+  // Load timesheet when selectedEmpId or attendanceMonth changes
   useEffect(() => {
+    if (selectedEmpId) {
+      fetchDailyAttendance(selectedEmpId, attendanceMonth);
+    }
+  }, [selectedEmpId, attendanceMonth, fetchDailyAttendance]);
+
+  // Load tab-specific data on tab switch
+  useEffect(() => {
+    if (activeTab === 'attendance') fetchDailyAttendance(selectedEmpId, attendanceMonth);
     if (activeTab === 'reports') fetchReports();
     if (activeTab === 'audit') fetchAuditLogs();
     if (activeTab === 'leaves') fetchPendingLeaves();
     if (activeTab === 'outside') fetchPendingOw();
     if (activeTab === 'employees') fetchEmployees();
-  }, [activeTab, fetchReports, fetchAuditLogs, fetchPendingLeaves, fetchPendingOw, fetchEmployees]);
+  }, [activeTab, fetchDailyAttendance, selectedEmpId, attendanceMonth, fetchReports, fetchAuditLogs, fetchPendingLeaves, fetchPendingOw, fetchEmployees]);
+
+  // ── Real-Time Working Hours Summary Calculations ──────────────
+  const monthlyMetrics = useMemo(() => {
+    let presentDays = 0;
+    let totalWorkedMinutes = 0;
+    let totalCreditedMinutes = 0;
+    let totalPermissionMinutes = 0;
+    let halfDays = 0;
+    let absences = 0;
+
+    dailyRecords.forEach((r) => {
+      if (r.calculatedStatus === 'PRESENT') presentDays++;
+      if (r.calculatedStatus === 'HALF_DAY_LEAVE') halfDays++;
+      if (r.calculatedStatus === 'ABSENT') absences++;
+      if (r.recordedMinutes) totalWorkedMinutes += r.recordedMinutes;
+      if (r.creditedMinutes) totalCreditedMinutes += r.creditedMinutes;
+      if (r.permissionMinutes) totalPermissionMinutes += r.permissionMinutes;
+    });
+
+    return {
+      presentDays,
+      halfDays,
+      absences,
+      totalWorkedHours: (totalWorkedMinutes / 60).toFixed(1),
+      totalCreditedHours: (totalCreditedMinutes / 60).toFixed(1),
+      totalPermissionMinutes,
+      recordCount: dailyRecords.length,
+    };
+  }, [dailyRecords]);
 
   // ── Attendance Handlers ────────────────────────────────────────
   const handleCheckIn = async () => {
@@ -222,25 +350,28 @@ export default function StaffDashboard() {
       const dateStr = now.toISOString().split('T')[0];
 
       const payload = {
-        employeeId: user?.employeeId || (user?.userId && user?.userId <= 3 ? user?.userId : 1),
+        employeeId: selectedEmpId || 1,
         workDate: dateStr,
         checkInTime: timeStr,
-        remarks: `[${workMode}] ${punchRemarks || 'Web portal check-in'}`,
+        workingMode: workMode,
+        remarks: `[${workMode}] ${punchRemarks || 'Session check-in'}`,
       };
 
-      await attendanceApi.checkIn(payload);
+      const res = await attendanceApi.checkIn(payload);
+      const data = res?.data;
 
-      const newStatus = {
+      setPunchStatus({
         isPunchedIn: true,
-        checkInTime: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        checkInTime: data?.inTime || timeStr,
         checkOutTime: null,
-        lastAction: `Punch In recorded at ${now.toLocaleTimeString()}`,
-      };
+        lastAction: `Punch In recorded at ${timeStr} (${workMode})`,
+        todayRecordedMinutes: data?.recordedMinutes || 0,
+        todaySessions: data?.sessions || [],
+      });
 
-      setPunchStatus(newStatus);
-      localStorage.setItem(`ns_punch_${user?.userId}`, JSON.stringify(newStatus));
-      showToast(`Punched in successfully at ${newStatus.checkInTime} (${workMode})!`, 'success');
+      showToast(`Punched in at ${timeStr}! Backend session opened.`, 'success');
       setPunchRemarks('');
+      fetchDailyAttendance(selectedEmpId, attendanceMonth);
     } catch (err) {
       console.error('Check-in error:', err);
       showToast(err.message || 'Check-in failed on Spring Boot backend.', 'error');
@@ -257,25 +388,27 @@ export default function StaffDashboard() {
       const dateStr = now.toISOString().split('T')[0];
 
       const payload = {
-        employeeId: user?.employeeId || (user?.userId && user?.userId <= 3 ? user?.userId : 1),
+        employeeId: selectedEmpId || 1,
         workDate: dateStr,
         checkOutTime: timeStr,
-        remarks: punchRemarks || 'Web portal check-out',
+        remarks: punchRemarks || 'Session check-out',
       };
 
-      await attendanceApi.checkOut(payload);
+      const res = await attendanceApi.checkOut(payload);
+      const data = res?.data;
 
-      const newStatus = {
-        ...punchStatus,
+      setPunchStatus({
         isPunchedIn: false,
-        checkOutTime: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-        lastAction: `Punch Out recorded at ${now.toLocaleTimeString()}`,
-      };
+        checkInTime: data?.inTime || punchStatus.checkInTime,
+        checkOutTime: timeStr,
+        lastAction: `Punch Out recorded at ${timeStr}. Total Worked: ${formatMinutesToHours(data?.recordedMinutes)}`,
+        todayRecordedMinutes: data?.recordedMinutes || 0,
+        todaySessions: data?.sessions || [],
+      });
 
-      setPunchStatus(newStatus);
-      localStorage.setItem(`ns_punch_${user?.userId}`, JSON.stringify(newStatus));
-      showToast(`Punched out successfully at ${newStatus.checkOutTime}!`, 'success');
+      showToast(`Punched out at ${timeStr}! Backend aggregated worked time: ${formatMinutesToHours(data?.recordedMinutes)}`, 'success');
       setPunchRemarks('');
+      fetchDailyAttendance(selectedEmpId, attendanceMonth);
     } catch (err) {
       console.error('Check-out error:', err);
       showToast(err.message || 'Check-out failed on Spring Boot backend.', 'error');
@@ -295,7 +428,7 @@ export default function StaffDashboard() {
     setSubmittingLeave(true);
     try {
       const payload = {
-        employeeId: user?.employeeId || (user?.userId && user?.userId <= 3 ? user?.userId : 1),
+        employeeId: selectedEmpId || 1,
         fromDate: leaveFromDate,
         toDate: leaveToDate,
         leaveType: leaveType,
@@ -304,9 +437,10 @@ export default function StaffDashboard() {
       };
 
       await leaveApi.submit(payload);
-      showToast('Leave request submitted successfully for approval!', 'success');
+      showToast('Leave request submitted to Spring Boot for approval!', 'success');
       setLeaveReason('');
       fetchPendingLeaves();
+      fetchDailyAttendance(selectedEmpId, attendanceMonth);
     } catch (err) {
       console.error('Leave submission failed:', err);
       showToast(err.message || 'Could not submit leave request.', 'error');
@@ -318,8 +452,9 @@ export default function StaffDashboard() {
   const handleApproveLeave = async (id, status) => {
     try {
       await leaveApi.approveOrReject(id, status, `Actioned by ${user?.fullName || user?.username}`);
-      showToast(`Leave request #${id} ${status.toLowerCase()} successfully!`, 'success');
+      showToast(`Leave request #${id} ${status.toLowerCase()} in DB!`, 'success');
       fetchPendingLeaves();
+      fetchDailyAttendance(selectedEmpId, attendanceMonth);
     } catch (err) {
       console.error('Leave approval failed:', err);
       showToast(err.message || 'Failed to update leave status.', 'error');
@@ -337,7 +472,7 @@ export default function StaffDashboard() {
     setSubmittingOw(true);
     try {
       const payload = {
-        employeeId: user?.employeeId || (user?.userId && user?.userId <= 3 ? user?.userId : 1),
+        employeeId: selectedEmpId || 1,
         workDate: owDate,
         startTime: owStartTime.length === 5 ? `${owStartTime}:00` : owStartTime,
         endTime: owEndTime.length === 5 ? `${owEndTime}:00` : owEndTime,
@@ -348,6 +483,7 @@ export default function StaffDashboard() {
       showToast('Outside work duty submitted for manager approval!', 'success');
       setOwPurpose('');
       fetchPendingOw();
+      fetchDailyAttendance(selectedEmpId, attendanceMonth);
     } catch (err) {
       console.error('Outside work submission failed:', err);
       showToast(err.message || 'Could not submit outside work.', 'error');
@@ -361,6 +497,7 @@ export default function StaffDashboard() {
       await outsideWorkApi.approveOrReject(id, status, `Actioned by ${user?.fullName || user?.username}`);
       showToast(`Outside work request #${id} ${status.toLowerCase()}!`, 'success');
       fetchPendingOw();
+      fetchDailyAttendance(selectedEmpId, attendanceMonth);
     } catch (err) {
       console.error('Outside work approval failed:', err);
       showToast(err.message || 'Failed to update outside work status.', 'error');
@@ -391,7 +528,7 @@ export default function StaffDashboard() {
       };
 
       await employeeApi.create(payload);
-      showToast(`Employee ${newEmpName} created successfully!`, 'success');
+      showToast(`Employee ${newEmpName} created in database!`, 'success');
       setShowAddEmpModal(false);
       setNewEmpCode('');
       setNewEmpName('');
@@ -427,7 +564,7 @@ export default function StaffDashboard() {
     setFinalizingMonth(true);
     try {
       await reportingApi.finalizeMonth(user?.organizationId || 1, selectedMonth);
-      showToast(`Month ${selectedMonth} has been finalized and locked!`, 'success');
+      showToast(`Month ${selectedMonth} finalized and locked in DB!`, 'success');
       fetchReports(selectedMonth);
     } catch (err) {
       console.error('Finalize month failed:', err);
@@ -453,7 +590,7 @@ export default function StaffDashboard() {
         name: newHolidayName.trim(),
         holidayType: newHolidayType,
       });
-      showToast('Company holiday created successfully!', 'success');
+      showToast('Company holiday saved to DB successfully!', 'success');
       setShowAddHolidayModal(false);
       setNewHolidayName('');
       setNewHolidayDate('');
@@ -470,6 +607,8 @@ export default function StaffDashboard() {
     logout();
     navigate('/login');
   };
+
+  const currentEmployee = employees.find((e) => e.id === Number(selectedEmpId));
 
   const filteredEmployees = employees.filter((emp) => {
     const q = searchTerm.toLowerCase();
@@ -495,7 +634,7 @@ export default function StaffDashboard() {
         </div>
       )}
 
-      {/* Top Luxury Navigation Header (Identical to NetworkzHome Navbar) */}
+      {/* Top Luxury Navigation Header */}
       <header className="nz-dash-top-nav">
         <div className="nz-dash-nav-container">
           <Link to="/" className="nz-dash-nav-brand">
@@ -542,23 +681,23 @@ export default function StaffDashboard() {
         {/* Welcome Banner Card */}
         <section className="nz-dash-welcome-card">
           <div className="nz-welcome-left">
-            <span className="nz-eyebrow">ENTERPRISE MANAGEMENT PORTAL • KOLLAM HQ</span>
+            <span className="nz-eyebrow">ENTERPRISE ATTENDANCE & PAYROLL LEDGER</span>
             <h1 className="nz-welcome-title">
               WELCOME, {user?.fullName || user?.username}!
             </h1>
             <p className="nz-welcome-subtitle">
-              Manage attendance, approvals, employee records, payroll reports, and campus schedules.
+              Backend multi-punch calculation engine with automated working hours aggregation, timesheets, and approvals.
             </p>
           </div>
 
           <div className="nz-welcome-meta-strip">
             <div className="nz-meta-pill">
-              <span className="nz-meta-pill-label">USER ID</span>
-              <span className="nz-meta-pill-val">#{user?.userId || user?.id || '1'}</span>
+              <span className="nz-meta-pill-label">INSPECTING STAFF</span>
+              <span className="nz-meta-pill-val">{currentEmployee?.fullName || user?.fullName || 'Active Staff'}</span>
             </div>
             <div className="nz-meta-pill">
-              <span className="nz-meta-pill-label">EMAIL</span>
-              <span className="nz-meta-pill-val">{user?.email || 'staff@networkz.com'}</span>
+              <span className="nz-meta-pill-label">EMP CODE</span>
+              <span className="nz-meta-pill-val">{currentEmployee?.employeeCode || `EMP-${user?.userId || '1'}`}</span>
             </div>
             <div className="nz-meta-pill">
               <span className="nz-meta-pill-label">ROLE</span>
@@ -566,7 +705,7 @@ export default function StaffDashboard() {
             </div>
             <div className="nz-meta-pill">
               <span className="nz-meta-pill-label">CAMPUS</span>
-              <span className="nz-meta-pill-val">Kollam Main Hub</span>
+              <span className="nz-meta-pill-val">{currentEmployee?.branchName || 'Kollam Main Hub'}</span>
             </div>
           </div>
         </section>
@@ -578,7 +717,7 @@ export default function StaffDashboard() {
             className={`nz-portal-tab-btn ${activeTab === 'attendance' ? 'is-active' : ''}`}
             onClick={() => setActiveTab('attendance')}
           >
-            🕒 ATTENDANCE & PUNCH
+            🕒 ATTENDANCE & WORKING HOURS
           </button>
 
           <button
@@ -639,164 +778,367 @@ export default function StaffDashboard() {
         </div>
 
         {/* ══════════════════════════════════════════════════════════════
-            TAB 1: ATTENDANCE & PUNCH DECK
+            TAB 1: ATTENDANCE, PUNCH & BACKEND WORKING HOURS DECK
            ══════════════════════════════════════════════════════════════ */}
         {activeTab === 'attendance' && (
-          <div className="nz-dash-deck-grid">
-            {/* Digital Attendance Punch Card */}
-            <section className="nz-dash-card nz-punch-deck-card">
-              <div className="nz-card-top-bar">
-                <div>
-                  <span className="nz-eyebrow" style={{ marginBottom: '0.2rem' }}>DAILY TIMESHEET</span>
-                  <h2 className="nz-card-heading">ATTENDANCE PUNCH</h2>
-                </div>
-                <span className={`nz-punch-badge ${punchStatus.isPunchedIn ? 'is-in' : 'is-out'}`}>
-                  {punchStatus.isPunchedIn ? '● PUNCHED IN' : '○ PUNCHED OUT'}
-                </span>
-              </div>
-
-              {/* Digital Clock Display */}
-              <div className="nz-editorial-clock-wrap">
-                <div className="nz-clock-digits">
-                  {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                </div>
-                <div className="nz-clock-calendar">
-                  {currentTime.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                </div>
-              </div>
-
-              {/* Stats Row */}
-              <div className="nz-punch-stats-deck">
-                <div className="nz-stat-item">
-                  <span className="nz-stat-item-label">FIRST CHECK-IN</span>
-                  <span className="nz-stat-item-val">{punchStatus.checkInTime || '--:--:--'}</span>
-                </div>
-                <div className="nz-stat-item">
-                  <span className="nz-stat-item-label">LAST CHECK-OUT</span>
-                  <span className="nz-stat-item-val">{punchStatus.checkOutTime || '--:--:--'}</span>
-                </div>
-                <div className="nz-stat-item">
-                  <span className="nz-stat-item-label">SHIFT TIMING</span>
-                  <span className="nz-stat-item-val">09:00 AM - 05:30 PM</span>
-                </div>
-              </div>
-
-              {/* Controls */}
-              <div className="nz-punch-form-wrap">
-                <div className="nz-form-grid-2">
-                  <div className="nz-form-group">
-                    <label className="nz-form-label">Working Mode</label>
-                    <select
-                      className="nz-form-input nz-form-select"
-                      value={workMode}
-                      onChange={(e) => setWorkMode(e.target.value)}
-                      disabled={punchLoading}
-                    >
-                      <option value="OFFICE">🏢 Campus Office (Kollam)</option>
-                      <option value="REMOTE">💻 Work From Home (Remote)</option>
-                      <option value="CLIENT_LOCATION">📍 Field / Client Location</option>
-                    </select>
+          <div className="nz-attendance-deck-container">
+            {/* 2-Column Top Section: Punch Controls + Policy Stats */}
+            <div className="nz-dash-deck-grid">
+              {/* Digital Attendance Punch Card */}
+              <section className="nz-dash-card nz-punch-deck-card">
+                <div className="nz-card-top-bar">
+                  <div>
+                    <span className="nz-eyebrow" style={{ marginBottom: '0.2rem' }}>SPRING BOOT PUNCH ENGINE</span>
+                    <h2 className="nz-card-heading">ATTENDANCE PUNCH</h2>
                   </div>
+                  <span className={`nz-punch-badge ${punchStatus.isPunchedIn ? 'is-in' : 'is-out'}`}>
+                    {punchStatus.isPunchedIn ? '● PUNCHED IN' : '○ PUNCHED OUT'}
+                  </span>
+                </div>
 
-                  <div className="nz-form-group">
-                    <label className="nz-form-label">Notes / Remarks</label>
-                    <input
-                      type="text"
-                      className="nz-form-input"
-                      placeholder="e.g. Kollam Main Lab / On-time"
-                      value={punchRemarks}
-                      onChange={(e) => setPunchRemarks(e.target.value)}
-                      disabled={punchLoading}
-                    />
+                {/* Digital Clock Display */}
+                <div className="nz-editorial-clock-wrap">
+                  <div className="nz-clock-digits">
+                    {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                  </div>
+                  <div className="nz-clock-calendar">
+                    {currentTime.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                   </div>
                 </div>
 
-                <div className="nz-punch-buttons-deck">
-                  <button
-                    type="button"
-                    className="nz-punch-action-btn is-punch-in"
-                    onClick={handleCheckIn}
-                    disabled={punchLoading || punchStatus.isPunchedIn}
-                  >
-                    {punchLoading && !punchStatus.isPunchedIn ? 'RECORDING PUNCH...' : 'PUNCH IN (START SHIFT) →'}
-                  </button>
-
-                  <button
-                    type="button"
-                    className="nz-punch-action-btn is-punch-out"
-                    onClick={handleCheckOut}
-                    disabled={punchLoading || !punchStatus.isPunchedIn}
-                  >
-                    {punchLoading && punchStatus.isPunchedIn ? 'RECORDING PUNCH...' : 'PUNCH OUT (END SHIFT) →'}
-                  </button>
+                {/* Real-Time Working Hours Tracker */}
+                <div className="nz-live-hours-tracker-card">
+                  <div className="nz-tracker-left">
+                    <span className="nz-tracker-label">BACKEND AGGREGATED WORKED TIME (TODAY)</span>
+                    <div className="nz-tracker-val">
+                      {punchStatus.isPunchedIn
+                        ? `Live: ${calculateLiveDuration(punchStatus.checkInTime, currentTime)} (In Progress)`
+                        : punchStatus.todayRecordedMinutes > 0
+                        ? `${formatMinutesToHours(punchStatus.todayRecordedMinutes)} (${(punchStatus.todayRecordedMinutes / 60).toFixed(1)} hrs)`
+                        : '0h 00m (Shift Not Started)'}
+                    </div>
+                  </div>
+                  <div className="nz-tracker-badge">
+                    {punchStatus.isPunchedIn ? '● ACTIVE SHIFT' : punchStatus.todayRecordedMinutes > 0 ? '✓ COMPLETED' : 'OFFLINE'}
+                  </div>
                 </div>
 
-                {punchStatus.lastAction && (
-                  <div className="nz-last-punch-notice">
-                    ✓ {punchStatus.lastAction}
+                {/* Today's Punch Sessions Strip */}
+                {punchStatus.todaySessions.length > 0 && (
+                  <div className="nz-today-sessions-deck">
+                    <span className="nz-sessions-deck-title">TODAY'S RECORDED SESSIONS:</span>
+                    <div className="nz-sessions-chips-wrap">
+                      {punchStatus.todaySessions.map((s) => (
+                        <span key={s.sessionIndex} className={`nz-session-chip ${s.isCompleted ? 'is-done' : 'is-active'}`}>
+                          #{s.sessionIndex}: {s.inTime} → {s.outTime || 'Active'} ({s.isCompleted ? formatMinutesToHours(s.durationMinutes) : 'In Progress'})
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 )}
-              </div>
-            </section>
 
-            {/* Policy & Shift Overview Card */}
-            <section className="nz-dash-card nz-policy-deck-card">
+                {/* Stats Row */}
+                <div className="nz-punch-stats-deck">
+                  <div className="nz-stat-item">
+                    <span className="nz-stat-item-label">FIRST IN</span>
+                    <span className="nz-stat-item-val">{punchStatus.checkInTime || '--:--:--'}</span>
+                  </div>
+                  <div className="nz-stat-item">
+                    <span className="nz-stat-item-label">LATEST OUT</span>
+                    <span className="nz-stat-item-val">{punchStatus.checkOutTime || '--:--:--'}</span>
+                  </div>
+                  <div className="nz-stat-item">
+                    <span className="nz-stat-item-label">TOTAL WORKED</span>
+                    <span className="nz-stat-item-val nz-accent-val">
+                      {formatMinutesToHours(punchStatus.todayRecordedMinutes)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Controls */}
+                <div className="nz-punch-form-wrap">
+                  <div className="nz-form-grid-2">
+                    <div className="nz-form-group">
+                      <label className="nz-form-label">Working Mode</label>
+                      <select
+                        className="nz-form-input nz-form-select"
+                        value={workMode}
+                        onChange={(e) => setWorkMode(e.target.value)}
+                        disabled={punchLoading}
+                      >
+                        <option value="OFFICE">🏢 Campus Office (Kollam)</option>
+                        <option value="REMOTE">💻 Work From Home (Remote)</option>
+                        <option value="CLIENT_LOCATION">📍 Field / Client Location</option>
+                      </select>
+                    </div>
+
+                    <div className="nz-form-group">
+                      <label className="nz-form-label">Session Remarks</label>
+                      <input
+                        type="text"
+                        className="nz-form-input"
+                        placeholder="e.g. Morning lab training / Post-lunch session"
+                        value={punchRemarks}
+                        onChange={(e) => setPunchRemarks(e.target.value)}
+                        disabled={punchLoading}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="nz-punch-buttons-deck">
+                    <button
+                      type="button"
+                      className="nz-punch-action-btn is-punch-in"
+                      onClick={handleCheckIn}
+                      disabled={punchLoading || punchStatus.isPunchedIn}
+                    >
+                      {punchLoading && !punchStatus.isPunchedIn
+                        ? 'SAVING PUNCH...'
+                        : punchStatus.todayRecordedMinutes > 0
+                        ? 'PUNCH IN AGAIN (NEW SESSION) →'
+                        : 'PUNCH IN (START SHIFT) →'}
+                    </button>
+
+                    <button
+                      type="button"
+                      className="nz-punch-action-btn is-punch-out"
+                      onClick={handleCheckOut}
+                      disabled={punchLoading || !punchStatus.isPunchedIn}
+                    >
+                      {punchLoading && punchStatus.isPunchedIn ? 'CALCULATING & SAVING...' : 'PUNCH OUT (END SESSION) →'}
+                    </button>
+                  </div>
+
+                  {punchStatus.lastAction && (
+                    <div className="nz-last-punch-notice">
+                      ✓ {punchStatus.lastAction}
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              {/* Policy & Monthly Performance Summary */}
+              <section className="nz-dash-card nz-policy-deck-card">
+                <div className="nz-card-top-bar">
+                  <div>
+                    <span className="nz-eyebrow" style={{ marginBottom: '0.2rem' }}>MONTHLY PERFORMANCE</span>
+                    <h2 className="nz-card-heading">CALCULATED METRICS ({attendanceMonth})</h2>
+                  </div>
+                </div>
+
+                <div className="nz-pillar-cards-stack">
+                  <div className="nz-mini-pillar-card">
+                    <div className="nz-mini-pillar-top">
+                      <span className="nz-mini-pillar-num">{monthlyMetrics.presentDays} DAYS</span>
+                      <span className="nz-tag-badge is-emerald">PRESENT DAYS</span>
+                    </div>
+                    <div className="nz-mini-pillar-title">Total Working Hours: {monthlyMetrics.totalWorkedHours} hrs</div>
+                    <div className="nz-mini-pillar-desc">
+                      Credited duty hours: {monthlyMetrics.totalCreditedHours} hrs across {monthlyMetrics.recordCount} ledger days.
+                    </div>
+                  </div>
+
+                  <div className="nz-mini-pillar-card">
+                    <div className="nz-mini-pillar-top">
+                      <span className="nz-mini-pillar-num">{monthlyMetrics.totalPermissionMinutes} / 240m</span>
+                      <span className="nz-tag-badge is-dark">PERMISSION QUOTA</span>
+                    </div>
+                    <div className="nz-mini-pillar-title">Grace & Permission Usage</div>
+                    <div className="nz-mini-pillar-desc">
+                      {Math.max(0, 240 - monthlyMetrics.totalPermissionMinutes)} minutes remaining before automated half-day deduction.
+                    </div>
+                  </div>
+
+                  <div className="nz-mini-pillar-card">
+                    <div className="nz-mini-pillar-top">
+                      <span className="nz-mini-pillar-num">{monthlyMetrics.halfDays + monthlyMetrics.absences}</span>
+                      <span className="nz-tag-badge is-purple">LEAVES & ABSENCE</span>
+                    </div>
+                    <div className="nz-mini-pillar-title">{monthlyMetrics.halfDays} Half Days • {monthlyMetrics.absences} Absences</div>
+                    <div className="nz-mini-pillar-desc">
+                      Standard policy: General shift 09:00 AM - 05:30 PM (510 min).
+                    </div>
+                  </div>
+                </div>
+
+                <div className="nz-quick-triggers-section">
+                  <div className="nz-quick-triggers-label">QUICK SHORTCUTS</div>
+                  <div className="nz-quick-triggers-grid">
+                    <button type="button" className="nz-quick-pill-btn" onClick={() => setActiveTab('leaves')}>
+                      📝 Apply Leave
+                    </button>
+                    <button type="button" className="nz-quick-pill-btn" onClick={() => setActiveTab('outside')}>
+                      🚗 Outside Work
+                    </button>
+                    <button type="button" className="nz-quick-pill-btn" onClick={() => setActiveTab('reports')}>
+                      📊 View Reports
+                    </button>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            {/* ── Monthly Timesheet & Working Hours Ledger Table ──────── */}
+            <section className="nz-dash-card nz-timesheet-ledger-card">
               <div className="nz-card-top-bar">
                 <div>
-                  <span className="nz-eyebrow" style={{ marginBottom: '0.2rem' }}>ORGANIZATION STANDARDS</span>
-                  <h2 className="nz-card-heading">POLICY & SHIFT NORMS</h2>
-                </div>
-              </div>
-
-              <div className="nz-pillar-cards-stack">
-                <div className="nz-mini-pillar-card">
-                  <div className="nz-mini-pillar-top">
-                    <span className="nz-mini-pillar-num">01</span>
-                    <span className="nz-tag-badge is-emerald">STANDARD SHIFT</span>
-                  </div>
-                  <div className="nz-mini-pillar-title">9:00 AM – 5:30 PM (510 Min)</div>
-                  <div className="nz-mini-pillar-desc">
-                    Required work minutes per active business day. Strict 0 min grace period.
-                  </div>
+                  <span className="nz-eyebrow" style={{ marginBottom: '0.2rem' }}>POSTGRESQL ATTENDANCE LEDGER</span>
+                  <h2 className="nz-card-heading">
+                    DAILY PUNCH & BACKEND WORKING HOURS TIMESHEET
+                  </h2>
                 </div>
 
-                <div className="nz-mini-pillar-card">
-                  <div className="nz-mini-pillar-top">
-                    <span className="nz-mini-pillar-num">02</span>
-                    <span className="nz-tag-badge is-dark">240 MIN LIMIT</span>
-                  </div>
-                  <div className="nz-mini-pillar-title">Monthly Permission Quota</div>
-                  <div className="nz-mini-pillar-desc">
-                    Up to 240 minutes of allowed late arrivals/early leaves per calendar month before half-day deduction.
-                  </div>
-                </div>
+                <div className="nz-timesheet-filters-row">
+                  {/* Staff Switcher for Super Admin, HR Admin, Manager */}
+                  {(isSuperAdmin || isHR || isManager) && employees.length > 0 && (
+                    <div className="nz-admin-staff-selector-wrap">
+                      <span className="nz-selector-label">STAFF:</span>
+                      <select
+                        className="nz-form-input nz-emp-select"
+                        value={selectedEmpId}
+                        onChange={(e) => setSelectedEmpId(Number(e.target.value))}
+                      >
+                        {employees.map((emp) => (
+                          <option key={emp.id} value={emp.id}>
+                            {emp.fullName} ({emp.employeeCode})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
-                <div className="nz-mini-pillar-card">
-                  <div className="nz-mini-pillar-top">
-                    <span className="nz-mini-pillar-num">03</span>
-                    <span className="nz-tag-badge is-purple">UPCOMING HOLIDAY</span>
-                  </div>
-                  <div className="nz-mini-pillar-title">Gandhi Jayanti (Oct 02, 2026)</div>
-                  <div className="nz-mini-pillar-desc">
-                    National public holiday for all Kerala campus branches.
-                  </div>
-                </div>
-              </div>
+                  <input
+                    type="month"
+                    className="nz-form-input nz-month-picker"
+                    value={attendanceMonth}
+                    onChange={(e) => setAttendanceMonth(e.target.value)}
+                  />
 
-              <div className="nz-quick-triggers-section">
-                <div className="nz-quick-triggers-label">QUICK SHORTCUTS</div>
-                <div className="nz-quick-triggers-grid">
-                  <button type="button" className="nz-quick-pill-btn" onClick={() => setActiveTab('leaves')}>
-                    📝 Apply Leave
-                  </button>
-                  <button type="button" className="nz-quick-pill-btn" onClick={() => setActiveTab('outside')}>
-                    🚗 Outside Work
-                  </button>
-                  <button type="button" className="nz-quick-pill-btn" onClick={() => setActiveTab('reports')}>
-                    📊 View Reports
+                  <button
+                    type="button"
+                    className="nz-table-refresh-btn"
+                    onClick={() => fetchDailyAttendance(selectedEmpId, attendanceMonth)}
+                    title="Reload ledger from Database"
+                  >
+                    🔄 Sync DB
                   </button>
                 </div>
               </div>
+
+              {loadingDailyRecords ? (
+                <div className="nz-table-state-box">Loading attendance and working hours ledger from database...</div>
+              ) : dailyRecords.length > 0 ? (
+                <div className="nz-editorial-table-wrapper">
+                  <table className="nz-editorial-table">
+                    <thead>
+                      <tr>
+                        <th>DATE</th>
+                        <th>DAY TYPE</th>
+                        <th>FIRST IN</th>
+                        <th>LAST OUT</th>
+                        <th>BACKEND WORKED TIME</th>
+                        <th>PUNCH SESSIONS</th>
+                        <th>LATE / PERM</th>
+                        <th>CALCULATED STATUS</th>
+                        <th>REMARKS</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {dailyRecords.map((rec) => {
+                        const isToday = rec.workDate === new Date().toISOString().split('T')[0];
+                        const workedDisplay =
+                          rec.recordedMinutes > 0
+                            ? `${formatMinutesToHours(rec.recordedMinutes)} (${(rec.recordedMinutes / 60).toFixed(1)} hrs)`
+                            : isToday && rec.isPunchedIn
+                            ? `${calculateLiveDuration(rec.inTime, currentTime)} (Live)`
+                            : '--';
+
+                        const sessionCount = rec.sessions?.length || 0;
+
+                        return (
+                          <tr key={rec.id || rec.workDate} className={isToday ? 'nz-today-row' : ''}>
+                            <td className="nz-table-code">
+                              {rec.workDate}{' '}
+                              <span className="nz-date-day-tag">
+                                {new Date(rec.workDate).toLocaleString('default', { weekday: 'short' })}
+                              </span>
+                              {isToday && <span className="nz-today-pill">TODAY</span>}
+                            </td>
+                            <td>
+                              <span className={`nz-tag-badge ${rec.dayType === 'WORK_DAY' ? 'is-emerald' : rec.dayType === 'COMPANY_HOLIDAY' ? 'is-purple' : 'is-dark'}`}>
+                                {rec.dayType?.replace('_', ' ')}
+                              </span>
+                            </td>
+                            <td className="nz-time-cell">
+                              {rec.inTime ? (
+                                <span className="nz-in-badge">
+                                  <span className="nz-punch-in-dot" /> {rec.inTime}
+                                </span>
+                              ) : (
+                                '--'
+                              )}
+                            </td>
+                            <td className="nz-time-cell">
+                              {rec.outTime ? (
+                                <span className="nz-out-badge">
+                                  <span className="nz-punch-out-dot" /> {rec.outTime}
+                                </span>
+                              ) : (
+                                '--'
+                              )}
+                            </td>
+                            <td className="nz-worked-hours-cell">
+                              <strong>{workedDisplay}</strong>
+                            </td>
+                            <td>
+                              {sessionCount > 0 ? (
+                                <button
+                                  type="button"
+                                  className="nz-session-view-btn"
+                                  onClick={() => setSelectedRecordForSessions(rec)}
+                                >
+                                  {sessionCount} Session{sessionCount > 1 ? 's' : ''} 🔍
+                                </button>
+                              ) : (
+                                <span className="nz-no-session-text">--</span>
+                              )}
+                            </td>
+                            <td>
+                              {rec.permissionMinutes && rec.permissionMinutes > 0 ? (
+                                <span className="nz-perm-used-tag">{rec.permissionMinutes} min</span>
+                              ) : (
+                                '0 min'
+                              )}
+                            </td>
+                            <td>
+                              <span
+                                className={`nz-tag-badge ${
+                                  rec.calculatedStatus === 'PRESENT'
+                                    ? 'is-emerald'
+                                    : rec.calculatedStatus === 'HALF_DAY_LEAVE'
+                                    ? 'is-amber'
+                                    : rec.calculatedStatus === 'ABSENT'
+                                    ? 'is-red'
+                                    : rec.calculatedStatus === 'COMPANY_HOLIDAY'
+                                    ? 'is-purple'
+                                    : 'is-dark'
+                                }`}
+                              >
+                                {rec.calculatedStatus?.replace('_', ' ')}
+                              </span>
+                            </td>
+                            <td className="nz-remarks-cell">{rec.remarks || '--'}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="nz-table-state-box">
+                  No attendance records found for {attendanceMonth}. Punch in or create records to populate ledger.
+                </div>
+              )}
             </section>
           </div>
         )}
@@ -884,7 +1226,7 @@ export default function StaffDashboard() {
                   className="nz-editorial-submit-btn"
                   disabled={submittingLeave}
                 >
-                  {submittingLeave ? 'SUBMITTING APPLICATION...' : 'SUBMIT LEAVE REQUEST →'}
+                  {submittingLeave ? 'SAVING TO DATABASE...' : 'SUBMIT LEAVE REQUEST →'}
                 </button>
               </form>
             </section>
@@ -1025,7 +1367,7 @@ export default function StaffDashboard() {
                   className="nz-editorial-submit-btn"
                   disabled={submittingOw}
                 >
-                  {submittingOw ? 'RECORDING DUTY...' : 'SUBMIT OUTSIDE WORK DUTY →'}
+                  {submittingOw ? 'SAVING TO DATABASE...' : 'SUBMIT OUTSIDE WORK DUTY →'}
                 </button>
               </form>
             </section>
@@ -1136,7 +1478,7 @@ export default function StaffDashboard() {
             </div>
 
             {loadingEmployees ? (
-              <div className="nz-table-state-box">Loading active records from Spring Boot...</div>
+              <div className="nz-table-state-box">Loading active records from database...</div>
             ) : filteredEmployees.length > 0 ? (
               <div className="nz-editorial-table-wrapper">
                 <table className="nz-editorial-table">
@@ -1221,7 +1563,7 @@ export default function StaffDashboard() {
             </div>
 
             {loadingReports ? (
-              <div className="nz-table-state-box">Loading monthly payroll records...</div>
+              <div className="nz-table-state-box">Loading monthly payroll records from DB...</div>
             ) : monthlySummaries.length > 0 ? (
               <div className="nz-editorial-table-wrapper">
                 <table className="nz-editorial-table">
@@ -1366,6 +1708,71 @@ export default function StaffDashboard() {
           </section>
         )}
       </main>
+
+      {/* ── MODAL: Detailed Punch Sessions Breakdown ─────────────── */}
+      {selectedRecordForSessions && (
+        <div className="nz-editorial-modal-backdrop" onClick={() => setSelectedRecordForSessions(null)}>
+          <div className="nz-editorial-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="nz-card-top-bar">
+              <div>
+                <span className="nz-eyebrow">PUNCH SESSIONS AUDIT</span>
+                <h2 className="nz-card-heading">{selectedRecordForSessions.workDate} TIMELOG</h2>
+              </div>
+              <button
+                type="button"
+                className="nz-modal-close-btn"
+                onClick={() => setSelectedRecordForSessions(null)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="nz-session-modal-summary">
+              <div className="nz-session-summary-item">
+                <span className="nz-meta-pill-label">EMPLOYEE</span>
+                <span className="nz-meta-pill-val">{selectedRecordForSessions.employeeName || `Employee #${selectedRecordForSessions.employeeId}`}</span>
+              </div>
+              <div className="nz-session-summary-item">
+                <span className="nz-meta-pill-label">BACKEND WORKED TIME</span>
+                <span className="nz-meta-pill-val nz-accent-val">
+                  {formatMinutesToHours(selectedRecordForSessions.recordedMinutes)} ({selectedRecordForSessions.workedHours ?? (selectedRecordForSessions.recordedMinutes / 60).toFixed(1)} hrs)
+                </span>
+              </div>
+              <div className="nz-session-summary-item">
+                <span className="nz-meta-pill-label">STATUS</span>
+                <span className="nz-meta-pill-val">{selectedRecordForSessions.calculatedStatus}</span>
+              </div>
+            </div>
+
+            <div className="nz-sessions-timeline-list">
+              {selectedRecordForSessions.sessions && selectedRecordForSessions.sessions.length > 0 ? (
+                selectedRecordForSessions.sessions.map((s) => (
+                  <div key={s.sessionIndex} className="nz-session-timeline-card">
+                    <div className="nz-session-card-header">
+                      <span className="nz-session-num-badge">SESSION #{s.sessionIndex}</span>
+                      <span className="nz-tag-badge is-emerald">
+                        {s.isCompleted ? formatMinutesToHours(s.durationMinutes) : 'In Progress'}
+                      </span>
+                    </div>
+                    <div className="nz-session-card-body">
+                      <div className="nz-session-time-row">
+                        <span>🟢 <strong>Punch In:</strong> {s.inTime || '--'}</span>
+                        <span>🔴 <strong>Punch Out:</strong> {s.outTime || 'Currently Active'}</span>
+                      </div>
+                      <div className="nz-session-meta-row">
+                        <span>🏢 <strong>Mode:</strong> {s.workingMode || 'OFFICE'}</span>
+                        {s.remarks && <span>💬 <strong>Notes:</strong> {s.remarks}</span>}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="nz-table-state-box">No individual punch session events logged for this date.</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── MODAL: Add New Employee Profile ───────────────────────── */}
       {showAddEmpModal && (

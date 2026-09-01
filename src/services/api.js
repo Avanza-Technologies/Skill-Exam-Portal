@@ -113,6 +113,16 @@ export const attendanceApi = {
     apiRequest(`/api/v1/attendance/${employeeId}/recalculate?month=${month}`, {
       method: 'POST',
     }),
+
+  getDailyRecords: (employeeId, month = '2026-09') =>
+    apiRequest(`/api/v1/attendance/employee/${employeeId}?month=${month}`, {
+      method: 'GET',
+    }),
+
+  getRecordsByDate: (organizationId = 1, date) =>
+    apiRequest(`/api/v1/attendance/date/${date}?organizationId=${organizationId}`, {
+      method: 'GET',
+    }),
 };
 
 // ── Leave APIs ──────────────────────────────────────────────────

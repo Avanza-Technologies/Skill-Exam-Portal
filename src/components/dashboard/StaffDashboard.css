@@ -460,6 +460,13 @@
   border-radius: 9999px;
 }
 
+/* ── Attendance Container ────────────────────────────────────────── */
+.nz-attendance-deck-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
 /* ── 2-Column Deck Grid ──────────────────────────────────────────── */
 .nz-dash-deck-grid {
   display: grid;
@@ -535,16 +542,16 @@
 /* Digital Clock Wrap */
 .nz-editorial-clock-wrap {
   text-align: center;
-  padding: 1.5rem;
+  padding: 1.25rem;
   background: var(--color-bg-warm, #F8F8F5);
   border: 1px solid var(--color-border, #E5E5E5);
   border-radius: 14px;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
 .nz-clock-digits {
   font-family: var(--font-display, 'Space Grotesk', sans-serif);
-  font-size: clamp(2.4rem, 4vw, 3rem);
+  font-size: clamp(2.2rem, 3.8vw, 2.8rem);
   font-weight: 900;
   letter-spacing: -0.02em;
   color: var(--color-primary, #111111);
@@ -552,10 +559,100 @@
 }
 
 .nz-clock-calendar {
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: var(--color-text-sub, #555555);
-  margin-top: 0.5rem;
+  margin-top: 0.45rem;
+}
+
+/* ── Real-Time Working Hours Tracker Card ────────────────────────── */
+.nz-live-hours-tracker-card {
+  background: #111111;
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 1.15rem 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  border-left: 4px solid var(--color-accent, #1E5D42);
+}
+
+.nz-tracker-label {
+  display: block;
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 0.2rem;
+}
+
+.nz-tracker-val {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 1.2rem;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  color: #34d399;
+}
+
+.nz-tracker-badge {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  background: rgba(255, 255, 255, 0.12);
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  color: #ffffff;
+}
+
+/* Today's Punch Sessions Strip */
+.nz-today-sessions-deck {
+  background: var(--color-bg-light, #F1F1F1);
+  border: 1px solid var(--color-border, #E5E5E5);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.nz-sessions-deck-title {
+  display: block;
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--color-primary, #111111);
+  margin-bottom: 0.45rem;
+}
+
+.nz-sessions-chips-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.nz-session-chip {
+  font-family: var(--font-display, monospace);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid var(--color-border, #E5E5E5);
+}
+
+.nz-session-chip.is-done {
+  background: #ffffff;
+  color: var(--color-accent, #1E5D42);
+  border-color: #A7F3D0;
+}
+
+.nz-session-chip.is-active {
+  background: #111111;
+  color: #34d399;
+  border-color: #333333;
 }
 
 /* Punch Stats Deck */
@@ -563,7 +660,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0.75rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
 @media (max-width: 600px) {
@@ -729,6 +826,16 @@
   color: #7C3AED;
 }
 
+.nz-tag-badge.is-amber {
+  background: #FEF3C7;
+  color: #B45309;
+}
+
+.nz-tag-badge.is-red {
+  background: #FEE2E2;
+  color: #DC2626;
+}
+
 .nz-mini-pillar-title {
   font-family: var(--font-display, 'Space Grotesk', sans-serif);
   font-size: 0.95rem;
@@ -789,6 +896,207 @@
   background: #ffffff;
   border-color: var(--color-accent, #1E5D42);
   transform: translateY(-1px);
+}
+
+/* ── Timesheet Ledger Table Specifics ────────────────────────────── */
+.nz-timesheet-ledger-card {
+  border-top: 4px solid var(--color-accent, #1E5D42);
+}
+
+.nz-timesheet-filters-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.nz-admin-staff-selector-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--color-bg-light, #F1F1F1);
+  border: 1px solid var(--color-border, #E5E5E5);
+  padding: 0.2rem 0.6rem;
+  border-radius: 10px;
+}
+
+.nz-selector-label {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: var(--color-accent, #1E5D42);
+  letter-spacing: 0.05em;
+}
+
+.nz-emp-select {
+  border: none;
+  background: transparent;
+  padding: 0.4rem 0.5rem;
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-weight: 800;
+  font-size: 0.82rem;
+  outline: none;
+}
+
+.nz-worked-hours-cell {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--color-accent, #1E5D42);
+}
+
+.nz-session-view-btn {
+  background: var(--color-bg-light, #F1F1F1);
+  border: 1px solid var(--color-border, #E5E5E5);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--color-primary, #111111);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.nz-session-view-btn:hover {
+  background: var(--color-primary, #111111);
+  color: #ffffff;
+  border-color: var(--color-primary, #111111);
+}
+
+.nz-no-session-text {
+  color: var(--color-text-muted, #888888);
+  font-size: 0.8rem;
+}
+
+.nz-time-cell {
+  font-family: var(--font-display, monospace);
+  font-size: 0.85rem;
+}
+
+.nz-in-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #065F46;
+}
+
+.nz-out-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #374151;
+}
+
+.nz-punch-in-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10B981;
+}
+
+.nz-punch-out-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #6B7280;
+}
+
+.nz-date-day-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-text-muted, #888888);
+  margin-left: 0.25rem;
+}
+
+.nz-today-row td {
+  background: rgba(30, 93, 66, 0.04) !important;
+  font-weight: 600;
+}
+
+.nz-today-pill {
+  background: var(--color-accent, #1E5D42);
+  color: #ffffff;
+  font-size: 0.6rem;
+  font-weight: 900;
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin-left: 0.35rem;
+}
+
+.nz-perm-used-tag {
+  background: #FEE2E2;
+  color: #DC2626;
+  font-weight: 800;
+  font-size: 0.75rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+}
+
+.nz-remarks-cell {
+  font-size: 0.8rem;
+  color: var(--color-text-sub, #555555);
+}
+
+/* ── Sessions Modal Details ──────────────────────────────────────── */
+.nz-session-modal-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  background: var(--color-bg-light, #F1F1F1);
+  border: 1px solid var(--color-border, #E5E5E5);
+  border-radius: 10px;
+  padding: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.nz-session-summary-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.nz-sessions-timeline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.nz-session-timeline-card {
+  background: var(--color-bg-warm, #F8F8F5);
+  border: 1px solid var(--color-border, #E5E5E5);
+  border-left: 4px solid var(--color-accent, #1E5D42);
+  border-radius: 10px;
+  padding: 1rem 1.15rem;
+}
+
+.nz-session-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.nz-session-num-badge {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.82rem;
+  font-weight: 900;
+  color: var(--color-primary, #111111);
+}
+
+.nz-session-time-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-display, monospace);
+  font-size: 0.86rem;
+  margin-bottom: 0.35rem;
+}
+
+.nz-session-meta-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--color-text-sub, #555555);
 }
 
 /* ── Approvals Queue Cards ───────────────────────────────────────── */
@@ -1045,11 +1353,15 @@
   padding: 0.55rem 0.75rem;
   cursor: pointer;
   font-size: 0.85rem;
-  transition: background 0.15s ease;
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-weight: 800;
+  transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
 .nz-table-refresh-btn:hover {
   background: #ffffff;
+  border-color: var(--color-accent, #1E5D42);
 }
 
 .nz-editorial-table-wrapper {
