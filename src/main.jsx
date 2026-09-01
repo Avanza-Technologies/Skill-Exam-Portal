@@ -1,11 +1,27 @@
+import { useEffect } from 'react'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
 import NetworkzHome from './networkz/NetworkzHome.jsx'
 import CyberSecurityLanding from './networkz/CyberSecurityLanding.jsx'
 import DigitalMarketingLanding from './networkz/DigitalMarketingLanding.jsx'
+
+// ── Google Tag SPA Route Tracker ───────────────────────────────────────────
+function PageTracker() {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (typeof window.gtag === 'function') {
+      window.gtag('config', 'AW-456823062', {
+        page_path: location.pathname + location.search,
+      });
+    }
+  }, [location]);
+
+  return null;
+}
 
 // ── DevTools guard — only active on /exam route ───────────────────────────
 if (typeof window !== 'undefined' && window.location.pathname.startsWith('/exam')) {
@@ -38,6 +54,7 @@ if (typeof window !== 'undefined' && window.location.pathname.startsWith('/exam'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
+      <PageTracker />
       <Routes>
         {/* Networkz Systems cinematic experience — flagship route */}
         <Route path="/" element={<NetworkzHome />} />
