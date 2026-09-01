@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './NetworkzHome.css';
 import { COURSE_DETAILS } from './data/courseData';
 
@@ -117,6 +119,7 @@ const FAQ_DATA = [
 ];
 
 export default function NetworkzHome() {
+  const { isAuthenticated, user } = useAuth();
   const [activeCategoryTab, setActiveCategoryTab] = useState('SOFTWARE');
   const [searchQuery, setSearchQuery] = useState('');
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
@@ -205,21 +208,19 @@ export default function NetworkzHome() {
 
         {/* Desktop CTA & Mobile Hamburger Toggle */}
         <div className="nz-nav-actions">
-          <a
-            href="https://script.google.com/a/macros/nskollam.com/s/AKfycbxGEQdDZ0eAyhgPTKpZM1denEs7A5Ui15Ak1gEMWkYYvDsBpR7ViaN2Rzm0LWCjJ_k_/exec"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            to={isAuthenticated ? "/dashboard" : "/login"}
             className="nz-nav-login-btn"
-            title="Employee Timesheet Login"
-            aria-label="Employee Timesheet Login"
+            title={isAuthenticated ? `Staff Portal (${user?.fullName || user?.username})` : "Employee Attendance Login"}
+            aria-label={isAuthenticated ? "Staff Portal" : "Employee Attendance Login"}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
               <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
               <polyline points="10 17 15 12 10 7" />
               <line x1="15" y1="12" x2="3" y2="12" />
             </svg>
-            <span>EMPLOYEE LOGIN</span>
-          </a>
+            <span>{isAuthenticated ? 'STAFF PORTAL →' : 'EMPLOYEE LOGIN'}</span>
+          </Link>
           <a href="/exam" className="nz-nav-cta">
             SKILL EXAM PORTAL →
           </a>
@@ -292,16 +293,14 @@ export default function NetworkzHome() {
             </a>
           </li>
           <li>
-            <a
-              href="https://script.google.com/a/macros/nskollam.com/s/AKfycbxGEQdDZ0eAyhgPTKpZM1denEs7A5Ui15Ak1gEMWkYYvDsBpR7ViaN2Rzm0LWCjJ_k_/exec"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              to={isAuthenticated ? "/dashboard" : "/login"}
               className="nz-mobile-nav-item"
               onClick={() => setMobileMenuOpen(false)}
             >
-              <span>Employee Timesheet Login</span>
-              <span className="nz-mobile-nav-item-badge" style={{ background: '#2563eb' }}>STAFF ↗</span>
-            </a>
+              <span>{isAuthenticated ? 'Staff Dashboard & Attendance' : 'Employee Attendance Login'}</span>
+              <span className="nz-mobile-nav-item-badge" style={{ background: '#2563eb' }}>{isAuthenticated ? 'DASHBOARD' : 'STAFF →'}</span>
+            </Link>
           </li>
           <li>
             <a href="#contact" className="nz-mobile-nav-item" onClick={() => setMobileMenuOpen(false)}>
@@ -312,10 +311,8 @@ export default function NetworkzHome() {
         </ul>
 
         <div className="nz-mobile-nav-actions">
-          <a
-            href="https://script.google.com/a/macros/nskollam.com/s/AKfycbxGEQdDZ0eAyhgPTKpZM1denEs7A5Ui15Ak1gEMWkYYvDsBpR7ViaN2Rzm0LWCjJ_k_/exec"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            to={isAuthenticated ? "/dashboard" : "/login"}
             className="nz-mobile-login-btn"
             onClick={() => setMobileMenuOpen(false)}
           >
@@ -324,8 +321,8 @@ export default function NetworkzHome() {
               <polyline points="10 17 15 12 10 7" />
               <line x1="15" y1="12" x2="3" y2="12" />
             </svg>
-            EMPLOYEE LOGIN (TIMESHEET) ↗
-          </a>
+            {isAuthenticated ? 'STAFF PORTAL & ATTENDANCE →' : 'EMPLOYEE LOGIN (PORTAL) →'}
+          </Link>
           <a href="/exam" className="nz-mobile-cta-btn" onClick={() => setMobileMenuOpen(false)}>
             SKILL EXAM PORTAL →
           </a>
@@ -890,14 +887,12 @@ export default function NetworkzHome() {
               <div className="nz-footer-title">STUDENT & EMPLOYEE PORTAL</div>
               <ul className="nz-footer-links">
                 <li>
-                  <a
-                    href="https://script.google.com/a/macros/nskollam.com/s/AKfycbxGEQdDZ0eAyhgPTKpZM1denEs7A5Ui15Ak1gEMWkYYvDsBpR7ViaN2Rzm0LWCjJ_k_/exec"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Link
+                    to={isAuthenticated ? "/dashboard" : "/login"}
                     className="nz-footer-employee-link"
                   >
-                    Employee Timesheet Login ↗
-                  </a>
+                    {isAuthenticated ? 'Staff Dashboard & Attendance →' : 'Employee Attendance Login →'}
+                  </Link>
                 </li>
                 <li><a href="/exam">Skill Exam Portal</a></li>
                 <li><a href="#faq">Frequently Asked Questions</a></li>

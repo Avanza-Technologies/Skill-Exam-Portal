@@ -1,0 +1,524 @@
+/* ═══════════════════════════════════════════════════════════════════
+   NETWORKZ SYSTEMS — EDITORIAL LOGIN EXPERIENCE
+   Matches Pentagram / Instrument / Aesop Luxury Design System
+   ═══════════════════════════════════════════════════════════════════ */
+
+.nz-editorial-login-root {
+  min-height: 100vh;
+  width: 100%;
+  background-color: var(--color-bg-warm, #F8F8F5);
+  color: var(--color-primary, #111111);
+  font-family: var(--font-body, 'Sora', sans-serif);
+  position: relative;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Subtle architectural grid lines and ambient glows */
+.nz-editorial-login-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(circle at 50% 45%, black 40%, transparent 85%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.nz-editorial-glow-emerald {
+  position: absolute;
+  top: -80px;
+  left: -80px;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(30, 93, 66, 0.1) 0%, transparent 70%);
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.nz-editorial-glow-dark {
+  position: absolute;
+  bottom: -100px;
+  right: -80px;
+  width: 550px;
+  height: 550px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(17, 17, 17, 0.05) 0%, transparent 70%);
+  filter: blur(70px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Top Luxury Nav Header */
+.nz-login-nav-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(17, 17, 17, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.9rem 3rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+@media (max-width: 768px) {
+  .nz-login-nav-header {
+    padding: 0.8rem 1.5rem;
+  }
+}
+
+.nz-login-nav-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nz-login-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+}
+
+.nz-login-brand-img {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.nz-login-brand-title {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 1.12rem;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.nz-login-brand-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  background: #ffffff;
+  color: var(--color-accent, #1E5D42);
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid #333333;
+}
+
+@media (max-width: 600px) {
+  .nz-login-brand-badge {
+    display: none;
+  }
+}
+
+.nz-login-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nz-editorial-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.8rem;
+  border-radius: 9999px;
+}
+
+.nz-editorial-status-pill.is-online {
+  background: rgba(30, 93, 66, 0.25);
+  border: 1px solid rgba(30, 93, 66, 0.6);
+  color: #34d399;
+}
+
+.nz-editorial-status-pill.is-offline {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #f87171;
+}
+
+.nz-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.nz-login-back-link {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  padding: 0.55rem 0.95rem;
+  border-radius: var(--radius-btn, 12px);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  transition: all 0.2s ease;
+}
+
+.nz-login-back-link:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.16);
+  border-color: var(--color-accent, #1E5D42);
+}
+
+/* Page Body */
+.nz-login-page-body {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7.5rem 1.5rem 4rem;
+}
+
+/* Editorial Card */
+.nz-login-editorial-card {
+  width: 100%;
+  max-width: 540px;
+  background: var(--color-secondary, #ffffff);
+  border: 1px solid var(--color-border, #E5E5E5);
+  border-top: 4px solid var(--color-accent, #1E5D42);
+  border-radius: var(--radius-card, 16px);
+  padding: 3rem 3rem 2.5rem;
+  box-shadow: var(--shadow-luxury, 0 20px 50px rgba(0, 0, 0, 0.05));
+  box-sizing: border-box;
+}
+
+@media (max-width: 600px) {
+  .nz-login-editorial-card {
+    padding: 2rem 1.5rem;
+  }
+}
+
+.nz-login-card-header {
+  margin-bottom: 1.75rem;
+}
+
+.nz-login-card-header .nz-eyebrow {
+  display: block;
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-accent, #1E5D42);
+  margin-bottom: 0.5rem;
+}
+
+.nz-login-main-title {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: clamp(1.8rem, 2.5vw, 2.3rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: var(--color-primary, #111111);
+  text-transform: uppercase;
+  margin: 0 0 0.5rem;
+}
+
+.nz-login-main-desc {
+  font-size: 0.92rem;
+  color: var(--color-text-sub, #555555);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Tabs */
+.nz-editorial-tabs {
+  display: flex;
+  background: var(--color-bg-light, #F1F1F1);
+  border: 1px solid var(--color-border, #E5E5E5);
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 1.5rem;
+  gap: 4px;
+}
+
+.nz-editorial-tab {
+  flex: 1;
+  padding: 0.65rem 0.5rem;
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: none;
+  background: transparent;
+  color: var(--color-text-sub, #555555);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.nz-editorial-tab.is-active {
+  background: #ffffff;
+  color: var(--color-primary, #111111);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Alerts */
+.nz-editorial-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.1rem;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.4;
+}
+
+.nz-alert-danger {
+  background: #FEF2F2;
+  border: 1px solid #FCA5A5;
+  color: #991B1B;
+}
+
+.nz-alert-success {
+  background: #ECFDF5;
+  border: 1px solid #6EE7B7;
+  color: #065F46;
+}
+
+.nz-alert-symbol {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: currentColor;
+  color: #ffffff;
+  font-weight: 900;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+/* Demo account strip */
+.nz-editorial-demo-strip {
+  background: var(--color-bg-warm, #F8F8F5);
+  border: 1px solid var(--color-border, #E5E5E5);
+  border-radius: 12px;
+  padding: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.nz-demo-strip-label {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-accent, #1E5D42);
+  margin-bottom: 0.6rem;
+}
+
+.nz-demo-strip-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.nz-demo-account-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1px solid var(--color-border, #E5E5E5);
+  border-radius: 8px;
+  padding: 0.55rem 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-editorial, ease);
+  text-align: left;
+}
+
+.nz-demo-account-pill:hover {
+  border-color: var(--color-accent, #1E5D42);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(30, 93, 66, 0.12);
+}
+
+.nz-pill-role {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--color-primary, #111111);
+}
+
+.nz-pill-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--color-accent, #1E5D42);
+  background: rgba(30, 93, 66, 0.08);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Form inputs matching NetworkzHome contact form */
+.nz-editorial-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.nz-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.nz-form-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nz-form-label {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-primary, #111111);
+}
+
+.nz-label-hint {
+  font-size: 0.72rem;
+  color: var(--color-text-muted, #888888);
+  font-weight: 600;
+}
+
+.nz-form-input {
+  width: 100%;
+  background: var(--color-bg-light, #F1F1F1);
+  border: 1px solid var(--color-border, #E5E5E5);
+  border-radius: 12px;
+  padding: 0.95rem 1.15rem;
+  font-family: var(--font-body, 'Sora', sans-serif);
+  font-size: 0.92rem;
+  color: var(--color-primary, #111111);
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.25s ease;
+}
+
+.nz-form-input:focus {
+  border-color: var(--color-primary, #111111);
+  background: var(--color-secondary, #ffffff);
+  box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.08);
+}
+
+.nz-form-select {
+  cursor: pointer;
+}
+
+.nz-form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+}
+
+.nz-input-pw-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.nz-input-pw-wrapper .nz-form-input {
+  padding-right: 4.2rem;
+}
+
+.nz-editorial-pw-btn {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--color-accent, #1E5D42);
+  cursor: pointer;
+  padding: 0.35rem 0.55rem;
+  border-radius: 6px;
+  transition: background 0.15s ease;
+}
+
+.nz-editorial-pw-btn:hover {
+  background: rgba(30, 93, 66, 0.1);
+}
+
+/* Submit Button matching .nz-btn-primary */
+.nz-editorial-submit-btn {
+  margin-top: 0.5rem;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--color-primary, #111111);
+  color: var(--color-secondary, #ffffff);
+  padding: 1.1rem 2rem;
+  border-radius: var(--radius-btn, 12px);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-editorial, cubic-bezier(0.16, 1, 0.3, 1));
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.nz-editorial-submit-btn:hover:not(:disabled) {
+  background: var(--color-dark-gray, #2A2A2A);
+  transform: translateY(-2px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+}
+
+.nz-editorial-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Card footer */
+.nz-login-card-foot {
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-border, #E5E5E5);
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted, #888888);
+  text-align: center;
+}

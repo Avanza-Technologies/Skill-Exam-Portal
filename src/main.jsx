@@ -1,11 +1,41 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
 import NetworkzHome from './networkz/NetworkzHome.jsx'
 import CyberSecurityLanding from './networkz/CyberSecurityLanding.jsx'
 import DigitalMarketingLanding from './networkz/DigitalMarketingLanding.jsx'
+import LoginPage from './components/auth/LoginPage.jsx'
+import StaffDashboard from './components/dashboard/StaffDashboard.jsx'
+import { AuthProvider, useAuth } from './context/AuthContext.jsx'
+
+function ProtectedRoute({ children }) {
+  const { isAuthenticated, isLoading } = useAuth();
+  const location = useLocation();
+
+  if (isLoading) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        background: '#070b14',
+        color: '#94a3b8',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: 'sans-serif'
+      }}>
+        Authenticating session...
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
+}
 
 // ── DevTools guard — only active on /exam route ───────────────────────────
 if (typeof window !== 'undefined' && window.location.pathname.startsWith('/exam')) {
@@ -37,26 +67,50 @@ if (typeof window !== 'undefined' && window.location.pathname.startsWith('/exam'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <BrowserRouter>
-      <Routes>
-        {/* Networkz Systems cinematic experience — flagship route */}
-        <Route path="/" element={<NetworkzHome />} />
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Networkz Systems cinematic experience — flagship route */}
+          <Route path="/" element={<NetworkzHome />} />
 
-        {/* Dedicated Cyber Security & Ethical Hacking Course Landing Page */}
-        <Route path="/cybersecurity" element={<CyberSecurityLanding />} />
-        <Route path="/cyber-security" element={<CyberSecurityLanding />} />
-        <Route path="/cyber" element={<CyberSecurityLanding />} />
-        <Route path="/ethical-hacking" element={<CyberSecurityLanding />} />
+          {/* Spring Boot Staff & Employee Authentication */}
+          <Route path="/login" element={<LoginPage />} />
 
-        {/* Dedicated Digital Marketing Professional Course Landing Page */}
-        <Route path="/digital-marketing" element={<DigitalMarketingLanding />} />
-        <Route path="/digitalmarketing" element={<DigitalMarketingLanding />} />
-        <Route path="/dm" element={<DigitalMarketingLanding />} />
+          {/* Spring Boot Staff Dashboard / Landing Page */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <StaffDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/portal"
+            element={
+              <ProtectedRoute>
+                <StaffDashboard />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Existing exam portal — preserved as a sub-route */}
-        <Route path="/exam" element={<App />} />
-        <Route path="/exam/*" element={<App />} />
-      </Routes>
-    </BrowserRouter>
+          {/* Dedicated Cyber Security & Ethical Hacking Course Landing Page */}
+          <Route path="/cybersecurity" element={<CyberSecurityLanding />} />
+          <Route path="/cyber-security" element={<CyberSecurityLanding />} />
+          <Route path="/cyber" element={<CyberSecurityLanding />} />
+          <Route path="/ethical-hacking" element={<CyberSecurityLanding />} />
+
+          {/* Dedicated Digital Marketing Professional Course Landing Page */}
+          <Route path="/digital-marketing" element={<DigitalMarketingLanding />} />
+          <Route path="/digitalmarketing" element={<DigitalMarketingLanding />} />
+          <Route path="/dm" element={<DigitalMarketingLanding />} />
+
+          {/* Existing exam portal — preserved as a sub-route */}
+          <Route path="/exam" element={<App />} />
+          <Route path="/exam/*" element={<App />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   </StrictMode>,
 )
+

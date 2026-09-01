@@ -1,0 +1,1300 @@
+/* ═══════════════════════════════════════════════════════════════════
+   NETWORKZ SYSTEMS — EDITORIAL STAFF DASHBOARD
+   Matches Pentagram / Instrument / Aesop Luxury Design System
+   ═══════════════════════════════════════════════════════════════════ */
+
+.nz-editorial-dash-root {
+  min-height: 100vh;
+  width: 100%;
+  background-color: var(--color-bg-warm, #F8F8F5);
+  color: var(--color-primary, #111111);
+  font-family: var(--font-body, 'Sora', sans-serif);
+  position: relative;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Subtle architectural grid pattern and ambient glows */
+.nz-editorial-dash-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(circle at 50% 30%, black 40%, transparent 85%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.nz-editorial-dash-glow-emerald {
+  position: absolute;
+  top: -100px;
+  left: -80px;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(30, 93, 66, 0.08) 0%, transparent 70%);
+  filter: blur(70px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.nz-editorial-dash-glow-dark {
+  position: absolute;
+  bottom: -120px;
+  right: -80px;
+  width: 650px;
+  height: 650px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(17, 17, 17, 0.04) 0%, transparent 70%);
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Toast Notification */
+.nz-editorial-toast {
+  position: fixed;
+  top: 5rem;
+  right: 2rem;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.9rem 1.4rem;
+  border-radius: 12px;
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.85rem;
+  font-weight: 700;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+  animation: slide-toast-editorial 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nz-editorial-toast.is-success {
+  background: #111111;
+  color: #ffffff;
+  border: 1px solid var(--color-accent, #1E5D42);
+}
+
+.nz-editorial-toast.is-error {
+  background: #991B1B;
+  color: #ffffff;
+}
+
+.nz-editorial-toast.is-info {
+  background: #111111;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.nz-toast-bullet {
+  color: #34d399;
+}
+
+@keyframes slide-toast-editorial {
+  from { opacity: 0; transform: translateY(-16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Top Luxury Navigation Header (Matches NetworkzHome Navbar) ────────── */
+.nz-dash-top-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(17, 17, 17, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.95rem 3rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .nz-dash-top-nav {
+    padding: 0.8rem 1.5rem;
+  }
+}
+
+.nz-dash-nav-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.nz-dash-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+}
+
+.nz-dash-brand-img {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.nz-dash-brand-title {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 1.12rem;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.nz-dash-brand-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  background: #ffffff;
+  color: var(--color-accent, #1E5D42);
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid #333333;
+}
+
+@media (max-width: 650px) {
+  .nz-dash-brand-badge {
+    display: none;
+  }
+}
+
+.nz-dash-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.nz-dash-server-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+}
+
+.nz-dash-server-badge.is-online {
+  background: rgba(30, 93, 66, 0.25);
+  border: 1px solid rgba(30, 93, 66, 0.6);
+  color: #34d399;
+}
+
+.nz-dash-server-badge.is-offline {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #f87171;
+}
+
+.nz-dash-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.nz-dash-home-btn {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius-btn, 12px);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.nz-dash-home-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.16);
+  border-color: var(--color-accent, #1E5D42);
+}
+
+@media (max-width: 820px) {
+  .nz-dash-home-btn {
+    display: none;
+  }
+}
+
+.nz-dash-user-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.35rem 0.65rem;
+  border-radius: 10px;
+}
+
+.nz-dash-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  background: var(--color-accent, #1E5D42);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-weight: 800;
+  font-size: 0.82rem;
+}
+
+.nz-dash-user-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.nz-dash-user-name {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.nz-dash-user-role {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #a7f3d0;
+  letter-spacing: 0.05em;
+}
+
+.nz-dash-logout-btn {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  background: #ffffff;
+  color: #111111;
+  border: none;
+  padding: 0.4rem 0.65rem;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-left: 0.3rem;
+  transition: all 0.2s ease;
+}
+
+.nz-dash-logout-btn:hover {
+  background: #e2e8f0;
+  transform: translateY(-1px);
+}
+
+/* ── Main Content Container ───────────────────────────────────────── */
+.nz-dash-content-container {
+  position: relative;
+  z-index: 2;
+  max-width: 1350px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 6.5rem 2rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .nz-dash-content-container {
+    padding: 5.5rem 1.25rem 3rem;
+  }
+}
+
+/* ── Welcome Banner Card ─────────────────────────────────────────── */
+.nz-dash-welcome-card {
+  background: var(--color-secondary, #ffffff);
+  border: 1px solid var(--color-border, #E5E5E5);
+  border-top: 4px solid var(--color-accent, #1E5D42);
+  border-radius: var(--radius-card, 16px);
+  padding: 2rem 2.25rem;
+  box-shadow: var(--shadow-luxury, 0 20px 50px rgba(0, 0, 0, 0.05));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .nz-dash-welcome-card {
+    padding: 1.5rem 1.25rem;
+  }
+}
+
+.nz-welcome-left {
+  max-width: 650px;
+}
+
+.nz-welcome-left .nz-eyebrow {
+  display: block;
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-accent, #1E5D42);
+  margin-bottom: 0.35rem;
+}
+
+.nz-welcome-title {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: clamp(1.7rem, 2.8vw, 2.3rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  color: var(--color-primary, #111111);
+  text-transform: uppercase;
+  margin: 0 0 0.35rem;
+  line-height: 1.05;
+}
+
+.nz-welcome-subtitle {
+  font-size: 0.9rem;
+  color: var(--color-text-sub, #555555);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.nz-welcome-meta-strip {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.nz-meta-pill {
+  background: var(--color-bg-light, #F1F1F1);
+  border: 1px solid var(--color-border, #E5E5E5);
+  padding: 0.5rem 0.85rem;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.nz-meta-pill-label {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted, #888888);
+}
+
+.nz-meta-pill-val {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--color-primary, #111111);
+}
+
+.nz-meta-pill-val.nz-accent-val {
+  color: var(--color-accent, #1E5D42);
+}
+
+/* ── Editorial Module Tabs Bar ───────────────────────────────────── */
+.nz-editorial-portal-tabs {
+  display: flex;
+  background: var(--color-secondary, #ffffff);
+  border: 1px solid var(--color-border, #E5E5E5);
+  border-radius: var(--radius-card, 16px);
+  padding: 6px;
+  gap: 6px;
+  overflow-x: auto;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+}
+
+.nz-portal-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.15rem;
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: none;
+  background: transparent;
+  color: var(--color-text-sub, #555555);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.nz-portal-tab-btn:hover {
+  color: var(--color-primary, #111111);
+  background: var(--color-bg-light, #F1F1F1);
+}
+
+.nz-portal-tab-btn.is-active {
+  background: var(--color-primary, #111111);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.nz-tab-count-badge {
+  background: #EF4444;
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 900;
+  padding: 2px 6px;
+  border-radius: 9999px;
+}
+
+/* ── 2-Column Deck Grid ──────────────────────────────────────────── */
+.nz-dash-deck-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 1.75rem;
+}
+
+@media (max-width: 960px) {
+  .nz-dash-deck-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Base Card */
+.nz-dash-card {
+  background: var(--color-secondary, #ffffff);
+  border: 1px solid var(--color-border, #E5E5E5);
+  border-radius: var(--radius-card, 16px);
+  padding: 2.25rem;
+  box-shadow: var(--shadow-luxury, 0 20px 50px rgba(0, 0, 0, 0.05));
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .nz-dash-card {
+    padding: 1.5rem 1.25rem;
+  }
+}
+
+.nz-card-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border, #E5E5E5);
+}
+
+.nz-card-heading {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 1.22rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--color-primary, #111111);
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.nz-punch-badge {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.8rem;
+  border-radius: 9999px;
+}
+
+.nz-punch-badge.is-in {
+  background: #ECFDF5;
+  border: 1px solid #A7F3D0;
+  color: var(--color-accent, #1E5D42);
+}
+
+.nz-punch-badge.is-out {
+  background: var(--color-bg-light, #F1F1F1);
+  border: 1px solid var(--color-border, #E5E5E5);
+  color: var(--color-text-sub, #555555);
+}
+
+/* Digital Clock Wrap */
+.nz-editorial-clock-wrap {
+  text-align: center;
+  padding: 1.5rem;
+  background: var(--color-bg-warm, #F8F8F5);
+  border: 1px solid var(--color-border, #E5E5E5);
+  border-radius: 14px;
+  margin-bottom: 1.5rem;
+}
+
+.nz-clock-digits {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: clamp(2.4rem, 4vw, 3rem);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--color-primary, #111111);
+  line-height: 1;
+}
+
+.nz-clock-calendar {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-text-sub, #555555);
+  margin-top: 0.5rem;
+}
+
+/* Punch Stats Deck */
+.nz-punch-stats-deck {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .nz-punch-stats-deck {
+    grid-template-columns: 1fr;
+  }
+}
+
+.nz-stat-item {
+  background: var(--color-bg-light, #F1F1F1);
+  border: 1px solid var(--color-border, #E5E5E5);
+  padding: 0.85rem 0.75rem;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.nz-stat-item-label {
+  display: block;
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted, #888888);
+  margin-bottom: 0.25rem;
+}
+
+.nz-stat-item-val {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--color-primary, #111111);
+}
+
+/* Form Controls */
+.nz-punch-form-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.nz-punch-buttons-deck {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 600px) {
+  .nz-punch-buttons-deck {
+    grid-template-columns: 1fr;
+  }
+}
+
+.nz-punch-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.1rem 1.25rem;
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-radius: var(--radius-btn, 12px);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-editorial, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.nz-punch-action-btn.is-punch-in {
+  background: var(--color-accent, #1E5D42);
+  color: #ffffff;
+  box-shadow: 0 4px 15px rgba(30, 93, 66, 0.25);
+}
+
+.nz-punch-action-btn.is-punch-in:hover:not(:disabled) {
+  background: var(--color-accent-hover, #164632);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(30, 93, 66, 0.35);
+}
+
+.nz-punch-action-btn.is-punch-out {
+  background: var(--color-primary, #111111);
+  color: #ffffff;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.nz-punch-action-btn.is-punch-out:hover:not(:disabled) {
+  background: var(--color-dark-gray, #2A2A2A);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+}
+
+.nz-punch-action-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.nz-last-punch-notice {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-accent, #1E5D42);
+  text-align: center;
+}
+
+/* ── Policy & Shift Cards Stack ──────────────────────────────────── */
+.nz-pillar-cards-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.nz-mini-pillar-card {
+  background: var(--color-bg-warm, #F8F8F5);
+  border: 1px solid var(--color-border, #E5E5E5);
+  border-left: 3px solid var(--color-accent, #1E5D42);
+  border-radius: 12px;
+  padding: 1.15rem 1.25rem;
+  transition: all 0.25s ease;
+}
+
+.nz-mini-pillar-card:hover {
+  transform: translateX(3px);
+  border-left-color: var(--color-primary, #111111);
+}
+
+.nz-mini-pillar-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.35rem;
+}
+
+.nz-mini-pillar-num {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: var(--color-accent, #1E5D42);
+}
+
+.nz-tag-badge {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+}
+
+.nz-tag-badge.is-emerald {
+  background: rgba(30, 93, 66, 0.1);
+  color: var(--color-accent, #1E5D42);
+}
+
+.nz-tag-badge.is-dark {
+  background: rgba(17, 17, 17, 0.08);
+  color: var(--color-primary, #111111);
+}
+
+.nz-tag-badge.is-purple {
+  background: rgba(124, 58, 237, 0.1);
+  color: #7C3AED;
+}
+
+.nz-mini-pillar-title {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--color-primary, #111111);
+  margin-bottom: 0.25rem;
+}
+
+.nz-mini-pillar-desc {
+  font-size: 0.82rem;
+  color: var(--color-text-sub, #555555);
+  line-height: 1.45;
+}
+
+/* Quick triggers */
+.nz-quick-triggers-section {
+  border-top: 1px solid var(--color-border, #E5E5E5);
+  padding-top: 1.25rem;
+}
+
+.nz-quick-triggers-label {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted, #888888);
+  margin-bottom: 0.75rem;
+}
+
+.nz-quick-triggers-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+@media (max-width: 600px) {
+  .nz-quick-triggers-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.nz-quick-pill-btn {
+  background: var(--color-bg-light, #F1F1F1);
+  border: 1px solid var(--color-border, #E5E5E5);
+  border-radius: 8px;
+  padding: 0.65rem 0.5rem;
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--color-primary, #111111);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.nz-quick-pill-btn:hover {
+  background: #ffffff;
+  border-color: var(--color-accent, #1E5D42);
+  transform: translateY(-1px);
+}
+
+/* ── Approvals Queue Cards ───────────────────────────────────────── */
+.nz-approvals-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.nz-approval-item-card {
+  background: var(--color-bg-warm, #F8F8F5);
+  border: 1px solid var(--color-border, #E5E5E5);
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.nz-approval-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nz-approval-applicant {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.nz-applicant-name {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--color-primary, #111111);
+}
+
+.nz-applicant-meta {
+  font-size: 0.75rem;
+  color: var(--color-text-sub, #555555);
+}
+
+.nz-approval-details {
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--color-text-sub, #555555);
+  background: #ffffff;
+  border: 1px solid var(--color-border, #E5E5E5);
+  padding: 0.75rem 0.95rem;
+  border-radius: 8px;
+}
+
+.nz-approval-actions-row {
+  display: flex;
+  gap: 0.65rem;
+}
+
+.nz-action-pill-btn {
+  flex: 1;
+  padding: 0.6rem 0.85rem;
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.nz-action-pill-btn.is-approve {
+  background: var(--color-accent, #1E5D42);
+  color: #ffffff;
+}
+
+.nz-action-pill-btn.is-approve:hover {
+  background: var(--color-accent-hover, #164632);
+}
+
+.nz-action-pill-btn.is-reject {
+  background: #DC2626;
+  color: #ffffff;
+}
+
+.nz-action-pill-btn.is-reject:hover {
+  background: #B91C1C;
+}
+
+/* Empty Queue */
+.nz-empty-queue-box {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  background: var(--color-bg-warm, #F8F8F5);
+  border: 1px dashed var(--color-border, #E5E5E5);
+  border-radius: 12px;
+}
+
+.nz-empty-symbol {
+  width: 44px;
+  height: 44px;
+  margin: 0 auto 0.75rem;
+  border-radius: 50%;
+  background: rgba(30, 93, 66, 0.1);
+  color: var(--color-accent, #1E5D42);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 900;
+}
+
+.nz-empty-title {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--color-primary, #111111);
+  margin-bottom: 0.25rem;
+}
+
+.nz-empty-desc {
+  font-size: 0.85rem;
+  color: var(--color-text-sub, #555555);
+  margin: 0;
+}
+
+/* ── Reports Controls & Month Picker ─────────────────────────────── */
+.nz-reports-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.nz-month-picker {
+  max-width: 170px;
+  padding: 0.55rem 0.85rem;
+}
+
+.nz-editorial-small-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem 1.1rem;
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.nz-editorial-small-btn.is-primary {
+  background: var(--color-primary, #111111);
+  color: #ffffff;
+}
+
+.nz-editorial-small-btn.is-primary:hover {
+  background: var(--color-dark-gray, #2A2A2A);
+}
+
+.nz-editorial-small-btn.is-emerald {
+  background: var(--color-accent, #1E5D42);
+  color: #ffffff;
+}
+
+.nz-editorial-small-btn.is-emerald:hover {
+  background: var(--color-accent-hover, #164632);
+}
+
+/* ── Holidays Grid ───────────────────────────────────────────────── */
+.nz-holidays-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.nz-holiday-card {
+  background: var(--color-bg-warm, #F8F8F5);
+  border: 1px solid var(--color-border, #E5E5E5);
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nz-holiday-date-block {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid var(--color-border, #E5E5E5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.nz-holiday-day {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: var(--color-accent, #1E5D42);
+  line-height: 1;
+}
+
+.nz-holiday-month {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--color-primary, #111111);
+}
+
+.nz-holiday-info {
+  flex: 1;
+}
+
+.nz-holiday-title {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--color-primary, #111111);
+}
+
+.nz-holiday-date-full {
+  font-size: 0.75rem;
+  color: var(--color-text-sub, #555555);
+  margin-top: 0.2rem;
+}
+
+/* ── Live Directory & Data Tables ────────────────────────────────── */
+.nz-directory-search-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nz-table-search-input {
+  min-width: 240px;
+  padding: 0.55rem 0.85rem;
+  font-size: 0.85rem;
+}
+
+.nz-table-refresh-btn {
+  background: var(--color-bg-light, #F1F1F1);
+  border: 1px solid var(--color-border, #E5E5E5);
+  border-radius: 10px;
+  padding: 0.55rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.15s ease;
+}
+
+.nz-table-refresh-btn:hover {
+  background: #ffffff;
+}
+
+.nz-editorial-table-wrapper {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid var(--color-border, #E5E5E5);
+}
+
+.nz-editorial-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  text-align: left;
+  background: #ffffff;
+}
+
+.nz-editorial-table th {
+  background: var(--color-bg-warm, #F8F8F5);
+  color: var(--color-primary, #111111);
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--color-border, #E5E5E5);
+  white-space: nowrap;
+}
+
+.nz-editorial-table td {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--color-border, #E5E5E5);
+  color: var(--color-text-sub, #555555);
+}
+
+.nz-editorial-table tr:last-child td {
+  border-bottom: none;
+}
+
+.nz-editorial-table tr:hover td {
+  background: var(--color-bg-warm, #F8F8F5);
+}
+
+.nz-table-code {
+  font-family: var(--font-display, 'Space Grotesk', monospace);
+  font-weight: 800;
+  color: var(--color-primary, #111111);
+}
+
+.nz-mono-cell {
+  font-family: monospace;
+  font-size: 0.82rem;
+}
+
+.nz-table-name {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-weight: 700;
+  color: var(--color-primary, #111111);
+}
+
+.nz-table-avatar-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: var(--color-bg-light, #F1F1F1);
+  color: var(--color-accent, #1E5D42);
+  border: 1px solid var(--color-border, #E5E5E5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.78rem;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.nz-table-state-box {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: var(--color-text-sub, #555555);
+  font-size: 0.9rem;
+}
+
+/* ── Modals & Backdrop ───────────────────────────────────────────── */
+.nz-editorial-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  box-sizing: border-box;
+}
+
+.nz-editorial-modal-card {
+  background: #ffffff;
+  border-radius: var(--radius-card, 16px);
+  border: 1px solid var(--color-border, #E5E5E5);
+  border-top: 4px solid var(--color-accent, #1E5D42);
+  width: 100%;
+  max-width: 580px;
+  padding: 2.25rem;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+  animation: modal-pop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+@keyframes modal-pop {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.nz-modal-close-btn {
+  background: var(--color-bg-light, #F1F1F1);
+  border: 1px solid var(--color-border, #E5E5E5);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  cursor: pointer;
+  color: var(--color-primary, #111111);
+  transition: all 0.15s ease;
+}
+
+.nz-modal-close-btn:hover {
+  background: #111111;
+  color: #ffffff;
+}
+
+/* ── Form Inputs & Layout (Shared) ───────────────────────────────── */
+.nz-editorial-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.nz-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.nz-form-label {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary, #111111);
+}
+
+.nz-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-primary, #111111);
+  cursor: pointer;
+}
+
+.nz-checkbox-label input {
+  width: 17px;
+  height: 17px;
+  cursor: pointer;
+  accent-color: var(--color-accent, #1E5D42);
+}
+
+.nz-form-input {
+  width: 100%;
+  background: var(--color-bg-light, #F1F1F1);
+  border: 1px solid var(--color-border, #E5E5E5);
+  border-radius: 12px;
+  padding: 0.9rem 1.15rem;
+  font-family: var(--font-body, 'Sora', sans-serif);
+  font-size: 0.92rem;
+  color: var(--color-primary, #111111);
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.25s ease;
+}
+
+.nz-form-input:focus {
+  border-color: var(--color-primary, #111111);
+  background: var(--color-secondary, #ffffff);
+  box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.08);
+}
+
+.nz-form-textarea {
+  resize: vertical;
+}
+
+.nz-form-select {
+  cursor: pointer;
+}
+
+.nz-form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+}
+
+@media (max-width: 600px) {
+  .nz-form-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.nz-editorial-submit-btn {
+  margin-top: 0.5rem;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--color-primary, #111111);
+  color: var(--color-secondary, #ffffff);
+  padding: 1.1rem 2rem;
+  border-radius: var(--radius-btn, 12px);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-editorial, cubic-bezier(0.16, 1, 0.3, 1));
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.nz-editorial-submit-btn:hover:not(:disabled) {
+  background: var(--color-dark-gray, #2A2A2A);
+  transform: translateY(-2px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+}
+
+.nz-editorial-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
